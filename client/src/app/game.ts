@@ -1,3 +1,4 @@
+import { HtmlContext } from "next/dist/server/future/route-modules/app-page/vendored/contexts/entrypoints";
 import io from "socket.io-client";
 
 export function start() {
@@ -9,22 +10,25 @@ export function start() {
 
   const walkSnow = new Audio("walk-snow.mp3");
 
-  const canvasEl = document.getElementById("canvas");
+  const canvasEl = document.getElementById("canvas") as HTMLCanvasElement;
+
   canvasEl.width = window.innerWidth;
   canvasEl.height = window.innerHeight;
-  const canvas = canvasEl.getContext("2d");
+  const canvas = canvasEl.getContext("2d")!;
 
-  const socket = io("ws://localhost:5000");
-
-  let isPlaying = true;
-
-  const remoteUsers = {};
-  window.remoteUsers = remoteUsers;
+  const socket = io("ws://localhost:8000");
 
   let groundMap = [[]];
   let decalMap = [[]];
-  let players = [];
-  let snowballs = [];
+  let players = [] as {
+    id: string;
+    x: number;
+    y: number;
+  }[];
+  let snowballs = [] as {
+    x: number;
+    y: number;
+  }[];
 
   const TILE_SIZE = 32;
   const SNOWBALL_RADIUS = 5;
@@ -101,8 +105,8 @@ export function start() {
     let cameraX = 0;
     let cameraY = 0;
     if (myPlayer) {
-      cameraX = parseInt(myPlayer.x - canvasEl.width / 2);
-      cameraY = parseInt(myPlayer.y - canvasEl.height / 2);
+      cameraX = Math.floor(myPlayer.x - canvasEl.width / 2);
+      cameraY = Math.floor(myPlayer.y - canvasEl.height / 2);
     }
 
     const TILES_IN_ROW = 8;
@@ -111,7 +115,7 @@ export function start() {
     for (let row = 0; row < groundMap.length; row++) {
       for (let col = 0; col < groundMap[0].length; col++) {
         let { id } = groundMap[row][col];
-        const imageRow = parseInt(id / TILES_IN_ROW);
+        const imageRow = Math.floor(id / TILES_IN_ROW);
         const imageCol = id % TILES_IN_ROW;
         canvas.drawImage(
           mapImage,
@@ -131,7 +135,7 @@ export function start() {
     for (let row = 0; row < decalMap.length; row++) {
       for (let col = 0; col < decalMap[0].length; col++) {
         let { id } = decalMap[row][col] ?? { id: undefined };
-        const imageRow = parseInt(id / TILES_IN_ROW);
+        const imageRow = Math.floor(id / TILES_IN_ROW);
         const imageCol = id % TILES_IN_ROW;
 
         canvas.drawImage(
