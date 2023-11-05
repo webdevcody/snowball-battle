@@ -11,4 +11,10 @@ jobs:
       - uses: actions/checkout@v2
       - run: npm install -g @hathora/cli
       - run: >
-          cd server && hathora-cloud deploy --appId app-f5736a0b-9fad-43d6-a928-58475b4e9018 --token ${{ secrets.HATHORA_TOKEN }} --planName tiny --roomsPerProcess 1
+          cd server && hathora-cloud deploy \
+            --appId app-f5736a0b-9fad-43d6-a928-58475b4e9018 \
+            --token ${{ secrets.HATHORA_TOKEN }} \
+            --planName tiny \
+            --roomsPerProcess 1 \
+            --transportType tcp \
+            --containerPort 8000
