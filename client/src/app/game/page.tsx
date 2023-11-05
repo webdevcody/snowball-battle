@@ -8,10 +8,10 @@ export default function Game() {
   const params = useSearchParams();
 
   useEffect(() => {
-    const websocketUrl = params.get("websocketUrl");
-    if (websocketUrl) {
+    const roomId = params.get("roomId");
+    if (roomId) {
       start({
-        websocketUrl,
+        roomId,
       });
     }
   }, [params]);

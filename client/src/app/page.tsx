@@ -45,27 +45,20 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       const lobbies = await lobbyClient.listActivePublicLobbies(HATHORA_APP_ID);
-      console.log("lobbies", lobbies);
       setLobbies(lobbies);
     })();
   }, []);
 
   async function joinRoom(roomId: string) {
-    const connectionInfo = await roomClient.getConnectionInfo(
-      HATHORA_APP_ID,
-      roomId
-    );
-
-    // TODO: I'd rather pass the room id now that I think about it
-    router.push(
-      `/game?websocketUrl=${encodeURI(
-        `wss://${connectionInfo.exposedPort?.host}:${connectionInfo.exposedPort?.port}`
-      )}`
-    );
+    router.push(`/game?roomId=${roomId}`);
   }
 
   function getLobbyConfig(lobby: Lobby, key: string) {
     return lobby.initialConfig[key] as string;
+  }
+
+  function getLobbyState(lobby: Lobby, key: string) {
+    return (lobby.state as any)[key] as string;
   }
 
   async function createLobby() {
@@ -98,7 +91,8 @@ export default function Home() {
           {getLobbyConfig(lobby, "roomName")}
         </h2>
         <p className="text-gray-600 ">
-          0 / {getLobbyConfig(lobby, "capacity")}
+          {getLobbyState(lobby, "numberOfPlayers") ?? 0} /{" "}
+          {getLobbyConfig(lobby, "capacity")}
         </p>
         <button
           className="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

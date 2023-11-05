@@ -15,6 +15,8 @@ const io = new Server(httpServer, {
 const PORT = process.env.PORT || 8000;
 
 const loadMap = require("./mapLoader");
+const { updateLobbyState } = require("./models/lobby");
+const { getRoomInfo } = require("./models/room");
 
 const SPEED = 5;
 const TICK_RATE = 30;
@@ -117,11 +119,22 @@ function tick(delta) {
   io.emit("snowballs", snowballs);
 }
 
+let capacity = 8;
+
 async function main() {
   ({ ground2D, decal2D } = await loadMap());
 
-  io.on("connect", (socket) => {
+  io.on("connect", async (socket) => {
+    const roomId = socket.handshake.query.roomId;
     console.log("user connected", socket.id);
+
+    const roomInfo = await getRoomInfo(roomId);
+    capacity = roomInfo.roomConfig.capacity;
+
+    if (players.length >= capacity) {
+      socket.disconnect();
+      return;
+    }
 
     inputsMap[socket.id] = {
       up: false,
@@ -134,6 +147,10 @@ async function main() {
       id: socket.id,
       x: 800,
       y: 800,
+    });
+
+    await updateLobbyState(roomId, {
+      numberOfPlayers: players.length,
     });
 
     socket.emit("map", {
@@ -156,8 +173,12 @@ async function main() {
       });
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       players = players.filter((player) => player.id !== socket.id);
+
+      await updateLobbyState(roomId, {
+        numberOfPlayers: players.length,
+      });
     });
   });
 

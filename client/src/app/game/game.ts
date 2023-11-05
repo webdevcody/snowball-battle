@@ -1,7 +1,17 @@
 import io from "socket.io-client";
 import { RoomV2Api } from "@hathora/hathora-cloud-sdk";
+import { HATHORA_APP_ID } from "@/config";
 
-export function start({ websocketUrl }: { websocketUrl: string }) {
+const roomClient = new RoomV2Api();
+
+export async function start({ roomId }: { roomId: string }) {
+  const connectionInfo = await roomClient.getConnectionInfo(
+    HATHORA_APP_ID,
+    roomId
+  );
+
+  const websocketUrl = `wss://${connectionInfo.exposedPort?.host}:${connectionInfo.exposedPort?.port}?roomId=${roomId}`;
+
   const mapImage = new Image();
   mapImage.src = "/snowy-sheet.png";
 
