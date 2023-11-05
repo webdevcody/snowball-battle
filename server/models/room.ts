@@ -1,5 +1,5 @@
 import { Room, RoomV2Api } from "@hathora/hathora-cloud-sdk";
-import { HATHORA_APP_ID, IS_LOCAL } from "../lib/config";
+import { HATHORA_APP_ID, HATHORA_TOKEN, IS_LOCAL } from "../lib/config";
 
 const roomClient = new RoomV2Api();
 
@@ -11,6 +11,11 @@ export async function getRoomInfo(roomId: string): Promise<Room> {
       }),
     } as Room;
   } else {
-    return roomClient.getRoomInfo(HATHORA_APP_ID, roomId);
+    return roomClient.getRoomInfo(HATHORA_APP_ID, roomId, {
+      headers: {
+        Authorization: `Bearer ${HATHORA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
   }
 }
