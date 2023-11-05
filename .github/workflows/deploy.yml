@@ -16,6 +16,6 @@ jobs:
             --token ${{ secrets.HATHORA_TOKEN }} \
             --planName tiny \
             --roomsPerProcess 1 \
-            --transportType tcp \
+            --transportType tls \
             --containerPort 8000 \
             --env '{"HATHORA_TOKEN": "${{ secrets.HATHORA_TOKEN }}"}'

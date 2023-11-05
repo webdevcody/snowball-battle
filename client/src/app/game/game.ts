@@ -1,4 +1,5 @@
 import io from "socket.io-client";
+import { RoomV2Api } from "@hathora/hathora-cloud-sdk";
 
 export function start({ websocketUrl }: { websocketUrl: string }) {
   const mapImage = new Image();
