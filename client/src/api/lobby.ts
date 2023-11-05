@@ -3,12 +3,15 @@ import {
   AuthV1Api,
   Lobby,
   LobbyV2Api,
+  Region,
   RoomV2Api,
 } from "@hathora/hathora-cloud-sdk";
 
 const roomClient = new RoomV2Api();
 const authApi = new AuthV1Api();
 const lobbyClient = new LobbyV2Api();
+
+export const REGIONS = [""];
 
 async function isReadyForConnect(
   appId: string,
@@ -30,7 +33,15 @@ async function isReadyForConnect(
   throw new Error("Polling timed out");
 }
 
-export async function createLobby(roomName: string): Promise<Lobby> {
+export async function createLobby({
+  roomName,
+  region,
+  capacity,
+}: {
+  roomName: string;
+  region: Region;
+  capacity: number;
+}): Promise<Lobby> {
   if (USE_LOCAL_WS) {
     return {
       roomId: "ABC124",
@@ -45,9 +56,9 @@ export async function createLobby(roomName: string): Promise<Lobby> {
       userInfo.token,
       {
         visibility: "public",
-        region: "Washington_DC",
+        region,
         initialConfig: {
-          capacity: 8,
+          capacity,
           winningScore: 5,
           roomName,
         },

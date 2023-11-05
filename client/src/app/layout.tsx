@@ -17,13 +17,8 @@ export default function RootLayout({
 }) {
   return (
     <>
-      <html lang="en">
+      <html lang="en" className="dark">
         <body className={inter.className}>{children}</body>
-        <Script
-          src="https://cdn.socket.io/4.6.0/socket.io.min.js"
-          integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
-          crossOrigin="anonymous"
-        />
       </html>
     </>
   );

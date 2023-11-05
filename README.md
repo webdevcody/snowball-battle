@@ -5,9 +5,8 @@ TODO
 - display leaderboard on game that shows kills
 - end game when someone gets 10 kills
 - add logics to limit users in room
-- learn more about latency and display in lobby somehow
-- display 2 / 8 players in lobby entries
 - add ability to pick santa color
 - polish the UI a bit
+- learn more about latency and display in lobby somehow
 
 game deployed to: https://snowball-battle.vercel.app/

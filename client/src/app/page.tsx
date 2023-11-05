@@ -1,27 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  AuthV1Api,
-  Lobby,
-  LobbyV2Api,
-  RoomV2Api,
-} from "@hathora/hathora-cloud-sdk";
+import { Lobby, LobbyV2Api } from "@hathora/hathora-cloud-sdk";
 import { HATHORA_APP_ID } from "../config";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import CreatingGameLoader from "./creating-game-loader";
-import { createLobby } from "@/api/lobby";
+import { CreateRoomSection } from "./create-room-section";
 
-const roomClient = new RoomV2Api();
-const authApi = new AuthV1Api();
 const lobbyClient = new LobbyV2Api();
 
 export default function Home() {
   const [lobbies, setLobbies] = useState<Lobby[]>([]);
   const [lobbyState, setLobbyState] = useState<"VIEW" | "CREATING">("VIEW");
   const router = useRouter();
-  const [roomName, setRoomName] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -42,14 +33,7 @@ export default function Home() {
     return (lobby.state as any)?.[key];
   }
 
-  async function createNewRoom() {
-    setLobbyState("CREATING");
-    const lobby = await createLobby(roomName);
-    joinRoom(lobby.roomId);
-  }
-
   function GameCard({ lobby }: { lobby: Lobby }) {
-    console.log(lobby);
     return (
       <div
         key={lobby.roomId}
@@ -83,45 +67,41 @@ export default function Home() {
               Snowball Battle Lobby
             </h1>
 
-            <div className="grid grid-cols-3 gap-4">
-              {lobbies.map((lobby) => (
-                <GameCard key={lobby.roomId} lobby={lobby} />
-              ))}
-            </div>
+            <div className="grid grid-cols-4 gap-12">
+              <div className="col-span-3">
+                <h2 className="text-2xl font-semibold mb-4 text-white">
+                  Current Games
+                </h2>
 
-            <div className="mt-8">
-              <h2 className="text-2xl font-semibold mb-4">Create a New Room</h2>
-              <form
-                className="bg-white rounded-lg shadow-md p-4 "
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  createNewRoom();
-                }}
-              >
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="roomName"
+                <div className="bg-gray-700 rounded-lg shadow-md p-4">
+                  {lobbies.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-4">
+                      {lobbies.map((lobby) => (
+                        <GameCard key={lobby.roomId} lobby={lobby} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div>There are no active games</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="col-span-1">
+                <h2 className="text-2xl font-semibold mb-4 text-white">
+                  Create a New Room
+                </h2>
+
+                <div
+                  className="bg-gray-700 rounded-lg shadow-md p-4 flex flex-col
+                gap-8"
                 >
-                  Room Name
-                </label>
-                <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline "
-                  id="roomName"
-                  name="roomName"
-                  placeholder="Enter room name"
-                  type="text"
-                  required
-                  onChange={(e) => {
-                    setRoomName(e.target.value);
-                  }}
-                />
-                <Button
-                  className="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                  type="submit"
-                >
-                  Create Room
-                </Button>
-              </form>
+                  <CreateRoomSection
+                    onRoomCreated={() => {
+                      setLobbyState("CREATING");
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </section>
