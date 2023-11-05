@@ -125,6 +125,7 @@ async function main() {
 
   io.on("connect", async (socket) => {
     const roomId = socket.handshake.query.roomId as string;
+    console.log("user connected", roomId);
 
     const roomInfo = await getRoomInfo(roomId);
 
