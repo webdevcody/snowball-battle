@@ -11,30 +11,11 @@ import { HATHORA_APP_ID } from "../config";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import CreatingGameLoader from "./creating-game-loader";
+import { createLobby } from "@/api/lobby";
 
 const roomClient = new RoomV2Api();
 const authApi = new AuthV1Api();
 const lobbyClient = new LobbyV2Api();
-
-async function isReadyForConnect(
-  appId: string,
-  roomClient: RoomV2Api,
-  roomId: string
-) {
-  const MAX_CONNECT_ATTEMPTS = 50;
-  const TRY_CONNECT_INTERVAL_MS = 1000;
-
-  for (let i = 0; i < MAX_CONNECT_ATTEMPTS; i++) {
-    const connetionInfo = await roomClient.getConnectionInfo(appId, roomId);
-    if (connetionInfo.status === "active") {
-      return;
-    }
-    await new Promise((resolve) =>
-      setTimeout(resolve, TRY_CONNECT_INTERVAL_MS)
-    );
-  }
-  throw new Error("Polling timed out");
-}
 
 export default function Home() {
   const [lobbies, setLobbies] = useState<Lobby[]>([]);
@@ -57,31 +38,18 @@ export default function Home() {
     return lobby.initialConfig[key] as string;
   }
 
-  function getLobbyState(lobby: Lobby, key: string) {
-    return (lobby.state as any)[key] as string;
+  function getLobbyState(lobby: Lobby, key: string): string | undefined {
+    return (lobby.state as any)?.[key];
   }
 
-  async function createLobby() {
+  async function createNewRoom() {
     setLobbyState("CREATING");
-    const userInfo = await authApi.loginAnonymous(HATHORA_APP_ID);
-    const lobby = await lobbyClient.createLobby(
-      HATHORA_APP_ID,
-      userInfo.token,
-      {
-        visibility: "public",
-        region: "Washington_DC",
-        initialConfig: {
-          capacity: 8,
-          winningScore: 5,
-          roomName,
-        },
-      }
-    );
-    await isReadyForConnect(HATHORA_APP_ID, roomClient, lobby.roomId);
+    const lobby = await createLobby(roomName);
     joinRoom(lobby.roomId);
   }
 
   function GameCard({ lobby }: { lobby: Lobby }) {
+    console.log(lobby);
     return (
       <div
         key={lobby.roomId}
@@ -127,7 +95,7 @@ export default function Home() {
                 className="bg-white rounded-lg shadow-md p-4 "
                 onSubmit={(e) => {
                   e.preventDefault();
-                  createLobby();
+                  createNewRoom();
                 }}
               >
                 <label

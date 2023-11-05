@@ -124,11 +124,10 @@ async function main() {
   ({ ground2D, decal2D } = await loadMap());
 
   io.on("connect", async (socket) => {
-    const roomId = socket.handshake.query.roomId;
-    console.log("user connected", socket.id);
+    const roomId = socket.handshake.query.roomId!;
 
     const roomInfo = await getRoomInfo(roomId);
-    capacity = roomInfo.roomConfig.capacity;
+    capacity = JSON.parse(roomInfo.roomConfig!).capacity;
 
     if (players.length >= capacity) {
       socket.disconnect();
