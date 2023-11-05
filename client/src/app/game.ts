@@ -1,7 +1,6 @@
-import { HtmlContext } from "next/dist/server/future/route-modules/app-page/vendored/contexts/entrypoints";
 import io from "socket.io-client";
 
-export function start() {
+export function start({ websocketUrl }: { websocketUrl: string }) {
   const mapImage = new Image();
   mapImage.src = "/snowy-sheet.png";
 
@@ -16,7 +15,7 @@ export function start() {
   canvasEl.height = window.innerHeight;
   const canvas = canvasEl.getContext("2d")!;
 
-  const socket = io("ws://localhost:8000");
+  const socket = io(websocketUrl);
 
   let groundMap = [[]];
   let decalMap = [[]];
