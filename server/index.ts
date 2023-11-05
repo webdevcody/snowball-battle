@@ -124,9 +124,11 @@ async function main() {
   ({ ground2D, decal2D } = await loadMap());
 
   io.on("connect", async (socket) => {
-    const roomId = socket.handshake.query.roomId!;
+    const roomId = socket.handshake.query.roomId as string;
 
     const roomInfo = await getRoomInfo(roomId);
+
+    console.log(roomInfo.roomConfig);
     capacity = JSON.parse(roomInfo.roomConfig!).capacity;
 
     if (players.length >= capacity) {

@@ -18,4 +18,4 @@ jobs:
             --roomsPerProcess 1 \
             --transportType tls \
             --containerPort 8000 \
-            --env '[{"name": "HATHORA_TOKEN", "value": "${{ secrets.HATHORA_TOKEN }}"}]'
+            --env '[{"name": "HATHORA_TOKEN", "value": "${{ secrets.HATHORA_TOKEN }}"}, {"name": "NODE_ENV", "value": "production"}]'
