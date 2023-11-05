@@ -1,6 +1,9 @@
-const express = require("express");
-const { createServer } = require("http");
-const { Server } = require("socket.io");
+import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { loadMap } from "./mapLoader";
+import { updateLobbyState } from "./models/lobby";
+import { getRoomInfo } from "./models/room";
 
 const app = express();
 const httpServer = createServer(app);
@@ -13,10 +16,6 @@ const io = new Server(httpServer, {
 });
 
 const PORT = process.env.PORT || 8000;
-
-const loadMap = require("./mapLoader");
-const { updateLobbyState } = require("./models/lobby");
-const { getRoomInfo } = require("./models/room");
 
 const SPEED = 5;
 const TICK_RATE = 30;

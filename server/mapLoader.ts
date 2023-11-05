@@ -1,7 +1,7 @@
-const tmx = require("tmx-parser");
-const path = require("path");
+import tmx from "tmx-parser";
+import path from "path";
 
-async function loadMap() {
+export async function loadMap() {
   const map = await new Promise((resolve, reject) => {
     tmx.parseFile(path.join(__dirname, "map.tmx"), function (err, loadedMap) {
       if (err) return reject(err);
@@ -39,5 +39,3 @@ async function loadMap() {
     decal2D,
   };
 }
-
-module.exports = loadMap;
