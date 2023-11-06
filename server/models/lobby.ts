@@ -3,13 +3,13 @@ import { HATHORA_APP_ID, HATHORA_TOKEN } from "../lib/config";
 
 const lobbyClient = new LobbyV2Api();
 
-export function updateLobbyState(
+export async function updateLobbyState(
   roomId: string,
   newState: {
     numberOfPlayers: number;
   }
 ) {
-  lobbyClient.setLobbyState(
+  await lobbyClient.setLobbyState(
     HATHORA_APP_ID,
     roomId,
     {

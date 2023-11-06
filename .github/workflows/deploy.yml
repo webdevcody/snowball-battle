@@ -15,7 +15,7 @@ jobs:
             --appId app-f5736a0b-9fad-43d6-a928-58475b4e9018 \
             --token ${{ secrets.HATHORA_TOKEN }} \
             --planName tiny \
-            --roomsPerProcess 1 \
+            --roomsPerProcess 10 \
             --transportType tls \
             --containerPort 8000 \
             --env '[{"name": "HATHORA_TOKEN", "value": "${{ secrets.HATHORA_TOKEN }}"}, {"name": "NODE_ENV", "value": "production"}]'
