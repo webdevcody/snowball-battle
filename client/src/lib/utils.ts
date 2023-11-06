@@ -6,9 +6,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getNickname() {
-  return localStorage.getItem("nickname") ?? "anonymous";
+  if (typeof window !== "undefined") {
+    return window.localStorage.getItem("nickname") ?? "anonymous";
+  }
+  return "anonymous";
 }
 
-export function persistNickname(newNickName: string) {
-  return localStorage.setItem("nickname", newNickName);
+export function persistNickname(newNickname: string) {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("nickname", newNickname);
+  }
 }
