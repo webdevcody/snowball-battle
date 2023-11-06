@@ -304,7 +304,7 @@ async function main() {
       id: socket.id,
       x: spawn.x,
       y: spawn.y,
-      nickname: socket.handshake.query.nickname,
+      nickname: socket.handshake.query.nickname as string,
       kills: 0,
       deaths: 0,
       isLeft: false,
@@ -352,6 +352,10 @@ async function main() {
 
       io.emit("players", players);
       io.emit("refresh");
+
+      if (players.length <= 0) {
+        process.exit(0);
+      }
     });
   });
 
