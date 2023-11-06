@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -281,6 +282,9 @@ async function main() {
       roomId = socket.handshake.query.roomId as string;
     }
     const roomInfo = await getRoomInfo(roomId);
+    console.log("b");
+    console.log("roomInfo", roomInfo);
+
     roomConfig = JSON.parse(roomInfo.roomConfig!);
 
     if (players.length >= roomConfig.capacity) {

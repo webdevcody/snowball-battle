@@ -1,4 +1,4 @@
-import { HATHORA_APP_ID, USE_LOCAL_WS } from "@/config";
+import { HATHORA_APP_ID, USE_LOCAL_WS, WINNING_SCORE } from "@/config";
 import {
   AuthV1Api,
   Lobby,
@@ -18,6 +18,7 @@ async function isReadyForConnect(
   roomClient: RoomV2Api,
   roomId: string
 ) {
+  if (USE_LOCAL_WS) return;
   const MAX_CONNECT_ATTEMPTS = 50;
   const TRY_CONNECT_INTERVAL_MS = 1000;
 
@@ -42,29 +43,16 @@ export async function createLobby({
   region: Region;
   capacity: number;
 }): Promise<Lobby> {
-  if (USE_LOCAL_WS) {
-    return {
-      roomId: "ABC124",
-      state: {
-        numberOfPlayers: 0,
-      },
-    } as Lobby;
-  } else {
-    const userInfo = await authApi.loginAnonymous(HATHORA_APP_ID);
-    const lobby = await lobbyClient.createLobby(
-      HATHORA_APP_ID,
-      userInfo.token,
-      {
-        visibility: "public",
-        region,
-        initialConfig: {
-          capacity,
-          winningScore: 5,
-          roomName,
-        },
-      }
-    );
-    await isReadyForConnect(HATHORA_APP_ID, roomClient, lobby.roomId);
-    return lobby;
-  }
+  const userInfo = await authApi.loginAnonymous(HATHORA_APP_ID);
+  const lobby = await lobbyClient.createLobby(HATHORA_APP_ID, userInfo.token, {
+    visibility: USE_LOCAL_WS ? "local" : "public",
+    region,
+    initialConfig: {
+      capacity,
+      winningScore: WINNING_SCORE,
+      roomName,
+    },
+  });
+  await isReadyForConnect(HATHORA_APP_ID, roomClient, lobby.roomId);
+  return lobby;
 }
