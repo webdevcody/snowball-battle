@@ -2,16 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
-export default function GameOver() {
-  const params = useSearchParams();
-
+export default function Disconnect() {
   return (
     <main className="w-full text-white h-screen flex justify-center items-center flex-col gap-8">
-      <h1 className="text-4xl">Game Over!</h1>
+      <h1 className="text-4xl">Uh Oh!</h1>
 
-      <p className="text-xl">{params.get("winner")} won the match!</p>
+      <p className="text-xl">You lost connection to the room</p>
 
       <Button asChild>
         <Link href="/lobby">Play Again</Link>

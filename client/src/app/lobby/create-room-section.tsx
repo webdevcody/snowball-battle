@@ -32,7 +32,7 @@ export function CreateRoomSection({ onRoomCreated }) {
 
   return (
     <form
-      className="bg-gray-700 rounded-lg shadow-md p-4 flex flex-col gap-8"
+      className="bg-gray-700 rounded-lg p-4 flex flex-col gap-8"
       onSubmit={(e) => {
         e.preventDefault();
         createNewRoom();

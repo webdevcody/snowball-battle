@@ -18,17 +18,26 @@ export default function Game() {
 
   useEffect(() => {
     const roomId = params.get("roomId");
-    if (roomId) {
-      start({
-        roomId,
-        onScoresUpdated(newScores: Score[]) {
-          setScores(newScores);
-        },
-        onGameOver(winner: string) {
-          router.push(`/game-over?winner=${winner}`);
-        },
+    if (!roomId) return;
+
+    const game = start({
+      roomId,
+      onScoresUpdated(newScores: Score[]) {
+        setScores(newScores);
+      },
+      onGameOver(winner: string) {
+        router.push(`/game-over?winner=${winner}`);
+      },
+      onDisconnect() {
+        router.push(`/disconnect`);
+      },
+    });
+
+    return () => {
+      game.then(({ cleanup }) => {
+        cleanup();
       });
-    }
+    };
   }, [params]);
 
   return (

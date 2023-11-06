@@ -15,11 +15,14 @@ export async function start({
   roomId,
   onScoresUpdated,
   onGameOver,
+  onDisconnect,
 }: {
   roomId: string;
   onScoresUpdated: (newScores: Score[]) => void;
   onGameOver: (winner: string) => void;
+  onDisconnect: () => void;
 }) {
+  let isRunning = true;
   const connectionInfo = await getConnectionInfo(roomId);
 
   const websocketUrl = `${USE_LOCAL_WS ? "ws://" : "wss://"}${
@@ -96,6 +99,10 @@ export async function start({
 
   socket.on("death", ({ victim, killer }) => {
     // TODO: show cs:go style of death alert
+  });
+
+  socket.on("disconnect", () => {
+    onDisconnect();
   });
 
   const inputs = {
@@ -205,7 +212,7 @@ export async function start({
     }
 
     for (const snowball of snowballs) {
-      canvas.fillStyle = "#FFFFFF";
+      canvas.fillStyle = "#ff0039";
       canvas.beginPath();
       canvas.arc(
         snowball.x - cameraX,
@@ -217,8 +224,17 @@ export async function start({
       canvas.fill();
     }
 
-    window.requestAnimationFrame(loop);
+    if (isRunning) {
+      window.requestAnimationFrame(loop);
+    }
   }
 
   window.requestAnimationFrame(loop);
+
+  return {
+    cleanup() {
+      isRunning = false;
+      socket.disconnect();
+    },
+  };
 }

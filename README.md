@@ -7,5 +7,6 @@ TODO
 - add ability to pick santa color
 - polish the UI a bit
 - learn more about latency and display in lobby somehow
+- fix diagonal movement
 
 game deployed to: https://snowball-battle.vercel.app/

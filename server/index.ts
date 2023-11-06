@@ -3,10 +3,45 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { loadMap } from "./mapLoader";
 import { updateLobbyState } from "./models/lobby";
-import { destroyRoom, getRoomInfo } from "./models/room";
+import { getRoomInfo } from "./models/room";
 
 const app = express();
 const httpServer = createServer(app);
+
+const SPAWN_POINTS = [
+  {
+    x: 813,
+    y: 739,
+  },
+  {
+    x: 1161,
+    y: 1156,
+  },
+  {
+    x: 1161,
+    y: 1891,
+  },
+  {
+    x: 1572,
+    y: 2188,
+  },
+  {
+    x: 2313,
+    y: 2188,
+  },
+  {
+    x: 2397,
+    y: 1555,
+  },
+  {
+    x: 2190,
+    y: 859,
+  },
+  {
+    x: 1773,
+    y: 1471,
+  },
+];
 
 const io = new Server(httpServer, {
   cors: {
@@ -50,8 +85,28 @@ type Snowball = {
 
 let players: Player[] = [];
 let snowballs: Snowball[] = [];
-const inputsMap = {};
-let ground2D, decal2D;
+const inputsMap = {} as Record<
+  string,
+  {
+    up: boolean;
+    down: boolean;
+    left: boolean;
+    right: boolean;
+  }
+>;
+let ground2D: {
+  id: any;
+  gid: any;
+}[][];
+
+let decal2D:
+  | (
+      | {
+          id: any;
+          gid: any;
+        }
+      | undefined
+    )[][];
 
 function getPlayer(playerId: string) {
   return players.find((p) => p.id === playerId);
@@ -64,6 +119,10 @@ function isColliding(rect1: Rect, rect2: Rect) {
     rect1.y < rect2.y + rect2.h &&
     rect1.h + rect1.y > rect2.y
   );
+}
+
+function getRandomSpawn() {
+  return SPAWN_POINTS[Math.floor(Math.random() * SPAWN_POINTS.length)];
 }
 
 function isCollidingWithMap(player: Player) {
@@ -134,8 +193,9 @@ function tick(delta: number) {
           (player.y + PLAYER_SIZE / 2 - snowball.y) ** 2
       );
       if (distance <= PLAYER_SIZE / 2) {
-        player.x = 0;
-        player.y = 0;
+        const spawn = getRandomSpawn();
+        player.x = spawn.x;
+        player.y = spawn.y;
         snowball.timeLeft = -1;
         player.deaths++;
         const ownerOfSnowball = getPlayer(snowball.playerId);
@@ -146,8 +206,7 @@ function tick(delta: number) {
             io.emit("end", ownerOfSnowball.id);
 
             setTimeout(async () => {
-              await destroyRoom(roomId);
-              process.exit(1);
+              process.exit(0);
             }, 2000);
           }
         }
@@ -190,10 +249,12 @@ async function main() {
       right: false,
     };
 
+    const spawn = getRandomSpawn();
+
     players.push({
       id: socket.id,
-      x: 800,
-      y: 800,
+      x: spawn.x,
+      y: spawn.y,
       kills: 0,
       deaths: 0,
     });
