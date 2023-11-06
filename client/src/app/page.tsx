@@ -1,8 +1,17 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { getNickname, persistNickname } from "@/lib/utils";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [nickname, setNickname] = useState(getNickname());
+
   return (
     <section className="w-full h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
       <h1 className="text-5xl font-bold text-gray-800 dark:text-gray-200 mb-8">
@@ -19,9 +28,31 @@ export default function LandingPage() {
         }}
         width="300"
       />
-      <Link href="/lobby">
-        <Button variant="default">Play Now</Button>
-      </Link>
+      <form
+        className="bg-gray-700 rounded-lg p-4 flex flex-col gap-8"
+        onSubmit={(e) => {
+          e.preventDefault();
+          persistNickname(nickname);
+          router.push("/lobby");
+        }}
+      >
+        <div className="flex flex-col gap-4">
+          <Label>Nickname</Label>
+          <Input
+            id="nickname"
+            required
+            value={nickname}
+            name="nickname"
+            placeholder="Enter your player name"
+            type="text"
+            onChange={(e) => {
+              setNickname(e.target.value);
+            }}
+          />
+        </div>
+
+        <Button type="submit">Play Now</Button>
+      </form>
     </section>
   );
 }

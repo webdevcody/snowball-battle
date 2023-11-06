@@ -68,6 +68,7 @@ type Player = {
   x: number;
   y: number;
   kills: number;
+  nickname: string;
   deaths: number;
 };
 
@@ -282,8 +283,6 @@ async function main() {
       roomId = socket.handshake.query.roomId as string;
     }
     const roomInfo = await getRoomInfo(roomId);
-    console.log("b");
-    console.log("roomInfo", roomInfo);
 
     roomConfig = JSON.parse(roomInfo.roomConfig!);
 
@@ -305,6 +304,7 @@ async function main() {
       id: socket.id,
       x: spawn.x,
       y: spawn.y,
+      nickname: socket.handshake.query.nickname,
       kills: 0,
       deaths: 0,
       isLeft: false,

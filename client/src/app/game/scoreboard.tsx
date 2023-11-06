@@ -31,14 +31,16 @@ export function ScoreBoard({
 
   const columns: ColumnDef<Score>[] = [
     {
-      accessorKey: "player",
+      accessorKey: "nickname",
       header: "Player",
       cell(value) {
         return (
           <span
-            className={myPlayerId === value.getValue() ? "text-red-500" : ""}
+            className={
+              myPlayerId === value.row.original.player ? "text-red-500" : ""
+            }
           >
-            {(value.getValue() as string).substring(0, 4)}
+            {(value.getValue() as string).substring(0, 14)}
           </span>
         );
       },

@@ -17,23 +17,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
+import { getNickname } from "@/lib/utils";
 
 const lobbyClient = new LobbyV2Api();
 
 export default function Lobby() {
-  const [lobbies, setLobbies] = useState<Lobby[]>([
-    // {
-    //   roomId: "a",
-    //   createdAt: new Date(),
-    //   initialConfig: {
-    //     capacity: 8,
-    //     roomName: "some name",
-    //   },
-    //   state: {
-    //     numberOfPlayers: 5,
-    //   },
-    // },
-  ]);
+  const [lobbies, setLobbies] = useState<Lobby[]>([]);
   const [lobbyState, setLobbyState] = useState<"VIEW" | "CREATING">("VIEW");
   const router = useRouter();
 
@@ -88,9 +78,19 @@ export default function Lobby() {
       {lobbyState === "VIEW" && (
         <section className="w-full text-white h-screen">
           <div className="container mx-auto px-4 py-8">
-            <h1 className="text-4xl font-bold text-center mb-8">
-              Snowball Battle Lobby
+            <h1 className="text-4xl font-bold text-center mb-2">
+              The Battle Lobby
             </h1>
+            <h2 className="text-xl text-center mb-8">
+              {getNickname()}
+              <br />
+              <Link
+                href="/"
+                className="ml-2 text-xs text-red-400 hover:text-red-500"
+              >
+                Change Nickname
+              </Link>
+            </h2>
 
             <div className="grid grid-cols-4 gap-12">
               <div className="col-span-3">

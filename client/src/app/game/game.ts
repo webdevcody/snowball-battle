@@ -3,10 +3,12 @@ import { USE_LOCAL_WS } from "@/config";
 import { getConnectionInfo } from "@/api/room";
 import { Score } from "./page";
 import { MutableRefObject } from "react";
+import { getNickname } from "@/lib/utils";
 
 type Player = {
   id: string;
   x: number;
+  nickname: string;
   y: number;
   isLeft: boolean;
   kills: number;
@@ -31,7 +33,9 @@ export async function start({
 
   const websocketUrl = `${USE_LOCAL_WS ? "ws://" : "wss://"}${
     connectionInfo.exposedPort?.host
-  }:${connectionInfo.exposedPort?.port}?roomId=${roomId}`;
+  }:${
+    connectionInfo.exposedPort?.port
+  }?roomId=${roomId}&nickname=${getNickname()}`;
 
   const mapImage = new Image();
   mapImage.src = "/snowy-sheet.png";
@@ -60,7 +64,6 @@ export async function start({
     y: number;
   }[];
   let isFirstPlayersEvent = true;
-  let myPlayerId;
 
   const TILE_SIZE = 32;
   const SNOWBALL_RADIUS = 5;
@@ -70,6 +73,7 @@ export async function start({
       kills: player.kills,
       deaths: player.deaths,
       player: player.id,
+      nickname: player.nickname,
     }));
     onScoresUpdated(newScores);
   }

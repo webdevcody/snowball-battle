@@ -5,13 +5,14 @@ import { start } from "./game";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScoreBoard } from "./scoreboard";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, UnplugIcon } from "lucide-react";
+import { UnplugIcon } from "lucide-react";
 import Link from "next/link";
 
 export type Score = {
   kills: number;
   deaths: number;
   player: string;
+  nickname: string;
 };
 
 export default function Game() {
