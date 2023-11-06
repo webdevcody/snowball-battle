@@ -2,6 +2,7 @@ import io from "socket.io-client";
 import { USE_LOCAL_WS } from "@/config";
 import { getConnectionInfo } from "@/api/room";
 import { Score } from "./page";
+import { MutableRefObject } from "react";
 
 type Player = {
   id: string;
@@ -17,11 +18,13 @@ export async function start({
   onScoresUpdated,
   onGameOver,
   onDisconnect,
+  playerIdRef,
 }: {
   roomId: string;
   onScoresUpdated: (newScores: Score[]) => void;
   onGameOver: (winner: string) => void;
   onDisconnect: () => void;
+  playerIdRef: MutableRefObject<any>;
 }) {
   let isRunning = true;
   const connectionInfo = await getConnectionInfo(roomId);
@@ -57,6 +60,7 @@ export async function start({
     y: number;
   }[];
   let isFirstPlayersEvent = true;
+  let myPlayerId;
 
   const TILE_SIZE = 32;
   const SNOWBALL_RADIUS = 5;
@@ -71,7 +75,7 @@ export async function start({
   }
 
   socket.on("connect", () => {
-    console.log("connected");
+    playerIdRef.current = socket.id;
   });
 
   socket.on("refresh", () => {
@@ -90,7 +94,6 @@ export async function start({
 
   socket.on("players", (serverPlayers) => {
     players = serverPlayers;
-
     if (isFirstPlayersEvent) {
       refreshScores();
     }

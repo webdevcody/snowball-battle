@@ -157,6 +157,36 @@ function isCollidingWithMap(player: Player) {
   return false;
 }
 
+function isCollidingWithTree(snowball: Snowball) {
+  const treeIds = [34, 35, 36, 37, 42, 43, 44, 45, 50, 51, 52, 53];
+  for (let row = 0; row < decal2D.length; row++) {
+    for (let col = 0; col < decal2D[0].length; col++) {
+      const tile = decal2D[row][col];
+      if (
+        tile &&
+        treeIds.includes(tile.id) &&
+        isColliding(
+          {
+            x: snowball.x,
+            y: snowball.y,
+            w: 32,
+            h: 32,
+          },
+          {
+            x: col * TILE_SIZE + 10,
+            y: row * TILE_SIZE + 10,
+            w: TILE_SIZE - 14,
+            h: TILE_SIZE - 14,
+          }
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function tick(delta: number) {
   for (const player of players) {
     const inputs = inputsMap[player.id];
@@ -196,6 +226,11 @@ function tick(delta: number) {
     snowball.x += Math.cos(snowball.angle) * SNOWBALL_SPEED;
     snowball.y += Math.sin(snowball.angle) * SNOWBALL_SPEED;
     snowball.timeLeft -= delta;
+
+    if (isCollidingWithTree(snowball)) {
+      snowball.timeLeft = -1;
+      continue;
+    }
 
     for (const player of players) {
       if (player.id === snowball.playerId) continue;

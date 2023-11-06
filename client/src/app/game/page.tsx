@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { start } from "./game";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScoreBoard } from "./scoreboard";
@@ -18,6 +18,7 @@ export default function Game() {
   const params = useSearchParams();
   const [scores, setScores] = useState<Score[]>([]);
   const router = useRouter();
+  const playerIdRef = useRef<any>(null);
 
   useEffect(() => {
     const roomId = params.get("roomId");
@@ -34,6 +35,7 @@ export default function Game() {
       onDisconnect() {
         router.push(`/disconnect`);
       },
+      playerIdRef,
     });
 
     return () => {
@@ -47,7 +49,7 @@ export default function Game() {
     <main className="relative">
       <canvas id="canvas"></canvas>
       <div className="absolute top-4 right-4">
-        <ScoreBoard scores={scores} />
+        <ScoreBoard scores={scores} myPlayerId={playerIdRef.current} />
       </div>
       <div className="absolute top-4 left-4">
         <Link href="/disconnect">

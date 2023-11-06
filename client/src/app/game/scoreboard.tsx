@@ -20,26 +20,38 @@ import {
 } from "@/components/ui/table";
 import { Score } from "./page";
 
-export const columns: ColumnDef<Score>[] = [
-  {
-    accessorKey: "player",
-    header: "Player",
-    cell(value) {
-      return (value.getValue() as string).substring(0, 4);
-    },
-  },
-  {
-    accessorKey: "kills",
-    header: "Kills",
-  },
-  {
-    accessorKey: "deaths",
-    header: "Deaths",
-  },
-];
-
-export function ScoreBoard({ scores }: { scores: Score[] }) {
+export function ScoreBoard({
+  scores,
+  myPlayerId,
+}: {
+  scores: Score[];
+  myPlayerId: string;
+}) {
   const sortedScores = scores.sort((a, b) => b.kills - a.kills);
+
+  const columns: ColumnDef<Score>[] = [
+    {
+      accessorKey: "player",
+      header: "Player",
+      cell(value) {
+        return (
+          <span
+            className={myPlayerId === value.getValue() ? "text-red-500" : ""}
+          >
+            {(value.getValue() as string).substring(0, 4)}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "kills",
+      header: "Kills",
+    },
+    {
+      accessorKey: "deaths",
+      header: "Deaths",
+    },
+  ];
 
   const table = useReactTable({
     data: sortedScores,
