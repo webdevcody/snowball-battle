@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { start } from "./game";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScoreBoard } from "./scoreboard";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, UnplugIcon } from "lucide-react";
+import Link from "next/link";
 
 export type Score = {
   kills: number;
@@ -45,6 +48,13 @@ export default function Game() {
       <canvas id="canvas"></canvas>
       <div className="absolute top-4 right-4">
         <ScoreBoard scores={scores} />
+      </div>
+      <div className="absolute top-4 left-4">
+        <Link href="/disconnect">
+          <Button variant={"secondary"} className="flex gap-4">
+            <UnplugIcon /> Disconnect
+          </Button>
+        </Link>
       </div>
     </main>
   );
