@@ -251,7 +251,7 @@ function tick(delta: number) {
           ownerOfSnowball.kills++;
 
           if (ownerOfSnowball.kills >= roomConfig!.winningScore) {
-            io.emit("end", ownerOfSnowball.id);
+            io.emit("end", ownerOfSnowball.nickname);
 
             setTimeout(async () => {
               process.exit(0);
