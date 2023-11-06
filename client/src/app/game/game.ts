@@ -1,8 +1,25 @@
 import io from "socket.io-client";
 import { USE_LOCAL_WS } from "@/config";
 import { getConnectionInfo } from "@/api/room";
+import { Score } from "./page";
 
-export async function start({ roomId }: { roomId: string }) {
+type Player = {
+  id: string;
+  x: number;
+  y: number;
+  kills: number;
+  deaths: number;
+};
+
+export async function start({
+  roomId,
+  onScoresUpdated,
+  onGameOver,
+}: {
+  roomId: string;
+  onScoresUpdated: (newScores: Score[]) => void;
+  onGameOver: (winner: string) => void;
+}) {
   const connectionInfo = await getConnectionInfo(roomId);
 
   const websocketUrl = `${USE_LOCAL_WS ? "ws://" : "wss://"}${
@@ -27,21 +44,31 @@ export async function start({ roomId }: { roomId: string }) {
 
   let groundMap = [[]];
   let decalMap = [[]];
-  let players = [] as {
-    id: string;
-    x: number;
-    y: number;
-  }[];
+  let players: Player[] = [];
   let snowballs = [] as {
     x: number;
     y: number;
   }[];
+  let isFirstPlayersEvent = true;
 
   const TILE_SIZE = 32;
   const SNOWBALL_RADIUS = 5;
 
+  function refreshScores() {
+    const newScores: Score[] = players.map((player) => ({
+      kills: player.kills,
+      deaths: player.deaths,
+      player: player.id,
+    }));
+    onScoresUpdated(newScores);
+  }
+
   socket.on("connect", () => {
     console.log("connected");
+  });
+
+  socket.on("refresh", () => {
+    refreshScores();
   });
 
   socket.on("map", (loadedMap) => {
@@ -49,12 +76,25 @@ export async function start({ roomId }: { roomId: string }) {
     decalMap = loadedMap.decal;
   });
 
+  socket.on("end", (winner: string) => {
+    onGameOver(winner);
+  });
+
   socket.on("players", (serverPlayers) => {
     players = serverPlayers;
+
+    if (isFirstPlayersEvent) {
+      refreshScores();
+    }
+    isFirstPlayersEvent = false;
   });
 
   socket.on("snowballs", (serverSnowballs) => {
     snowballs = serverSnowballs;
+  });
+
+  socket.on("death", ({ victim, killer }) => {
+    // TODO: show cs:go style of death alert
   });
 
   const inputs = {

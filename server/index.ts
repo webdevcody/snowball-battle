@@ -17,18 +17,47 @@ const io = new Server(httpServer, {
 
 const PORT = process.env.PORT || 8000;
 
-const SPEED = 5;
-const TICK_RATE = 30;
-const SNOWBALL_SPEED = 11;
+const SPEED = 3;
+const TICK_RATE = 60;
+const SNOWBALL_SPEED = 10;
 const PLAYER_SIZE = 32;
 const TILE_SIZE = 32;
 
-let players = [];
-let snowballs = [];
+type PlayerId = string;
+
+type Player = {
+  id: PlayerId;
+  x: number;
+  y: number;
+  kills: number;
+  deaths: number;
+};
+
+type Rect = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+type Snowball = {
+  x: number;
+  y: number;
+  angle: number;
+  playerId: PlayerId;
+  timeLeft: number;
+};
+
+let players: Player[] = [];
+let snowballs: Snowball[] = [];
 const inputsMap = {};
 let ground2D, decal2D;
 
-function isColliding(rect1, rect2) {
+function getPlayer(playerId: string) {
+  return players.find((p) => p.id === playerId);
+}
+
+function isColliding(rect1: Rect, rect2: Rect) {
   return (
     rect1.x < rect2.x + rect2.w &&
     rect1.x + rect1.w > rect2.x &&
@@ -37,7 +66,7 @@ function isColliding(rect1, rect2) {
   );
 }
 
-function isCollidingWithMap(player) {
+function isCollidingWithMap(player: Player) {
   for (let row = 0; row < decal2D.length; row++) {
     for (let col = 0; col < decal2D[0].length; col++) {
       const tile = decal2D[row][col];
@@ -66,7 +95,7 @@ function isCollidingWithMap(player) {
   return false;
 }
 
-function tick(delta) {
+function tick(delta: number) {
   for (const player of players) {
     const inputs = inputsMap[player.id];
     const previousY = player.y;
@@ -108,6 +137,19 @@ function tick(delta) {
         player.x = 0;
         player.y = 0;
         snowball.timeLeft = -1;
+        player.deaths++;
+        const ownerOfSnowball = getPlayer(snowball.playerId);
+        if (ownerOfSnowball) {
+          ownerOfSnowball.kills++;
+
+          if (ownerOfSnowball.kills >= roomConfig!.winningScore) {
+            io.emit("end", ownerOfSnowball.id);
+          }
+        }
+        io.emit("death", { victim: player, killer: ownerOfSnowball });
+        io.emit("players", players);
+        io.emit("refresh");
+
         break;
       }
     }
@@ -118,7 +160,7 @@ function tick(delta) {
   io.emit("snowballs", snowballs);
 }
 
-let capacity = 8;
+let roomConfig;
 
 async function main() {
   ({ ground2D, decal2D } = await loadMap());
@@ -126,9 +168,9 @@ async function main() {
   io.on("connect", async (socket) => {
     const roomId = socket.handshake.query.roomId as string;
     const roomInfo = await getRoomInfo(roomId);
-    capacity = JSON.parse(roomInfo.roomConfig!).capacity;
+    roomConfig = JSON.parse(roomInfo.roomConfig!);
 
-    if (players.length >= capacity) {
+    if (players.length >= roomConfig.capacity) {
       socket.disconnect();
       return;
     }
@@ -144,11 +186,16 @@ async function main() {
       id: socket.id,
       x: 800,
       y: 800,
+      kills: 0,
+      deaths: 0,
     });
 
     await updateLobbyState(roomId, {
       numberOfPlayers: players.length,
     });
+
+    io.emit("players", players);
+    io.emit("refresh");
 
     socket.emit("map", {
       ground: ground2D,
@@ -160,11 +207,12 @@ async function main() {
     });
 
     socket.on("snowball", (angle) => {
-      const player = players.find((player) => player.id === socket.id);
+      const player = getPlayer(socket.id);
+      if (!player) return;
       snowballs.push({
         angle,
-        x: player.x,
-        y: player.y,
+        x: player.x + PLAYER_SIZE / 2,
+        y: player.y + PLAYER_SIZE / 2,
         timeLeft: 1000,
         playerId: socket.id,
       });
@@ -176,6 +224,9 @@ async function main() {
       await updateLobbyState(roomId, {
         numberOfPlayers: players.length,
       });
+
+      io.emit("players", players);
+      io.emit("refresh");
     });
   });
 

@@ -8,6 +8,7 @@ export async function getRoomInfo(roomId: string): Promise<Room> {
     return {
       roomConfig: JSON.stringify({
         capacity: 8,
+        winningScore: 5,
       }),
     } as Room;
   } else {
