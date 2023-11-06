@@ -8,6 +8,7 @@ import { getRoomInfo } from "./models/room";
 const app = express();
 const httpServer = createServer(app);
 
+const THROW_DELAY = 500;
 const SPAWN_POINTS = [
   {
     x: 813,
@@ -52,7 +53,7 @@ const io = new Server(httpServer, {
 
 const PORT = process.env.PORT || 8000;
 
-const SPEED = 3;
+const SPEED = 4;
 const TICK_RATE = 60;
 const SNOWBALL_SPEED = 10;
 const PLAYER_SIZE = 32;
@@ -62,6 +63,7 @@ type PlayerId = string;
 
 type Player = {
   id: PlayerId;
+  isLeft: boolean;
   x: number;
   y: number;
   kills: number;
@@ -85,6 +87,7 @@ type Snowball = {
 
 let players: Player[] = [];
 let snowballs: Snowball[] = [];
+const onFireCooldown = new Map<string, boolean>();
 const inputsMap = {} as Record<
   string,
   {
@@ -140,10 +143,10 @@ function isCollidingWithMap(player: Player) {
             h: 32,
           },
           {
-            x: col * TILE_SIZE,
-            y: row * TILE_SIZE,
-            w: TILE_SIZE,
-            h: TILE_SIZE,
+            x: col * TILE_SIZE + 10,
+            y: row * TILE_SIZE + 10,
+            w: TILE_SIZE - 14,
+            h: TILE_SIZE - 14,
           }
         )
       ) {
@@ -160,10 +163,16 @@ function tick(delta: number) {
     const previousY = player.y;
     const previousX = player.x;
 
+    let playerSpeed = SPEED;
+
+    if ((inputs.up || inputs.down) && (inputs.left || inputs.right)) {
+      playerSpeed = SPEED * 0.7071067811865476;
+    }
+
     if (inputs.up) {
-      player.y -= SPEED;
+      player.y -= playerSpeed;
     } else if (inputs.down) {
-      player.y += SPEED;
+      player.y += playerSpeed;
     }
 
     if (isCollidingWithMap(player)) {
@@ -171,9 +180,11 @@ function tick(delta: number) {
     }
 
     if (inputs.left) {
-      player.x -= SPEED;
+      player.x -= playerSpeed;
+      player.isLeft = true;
     } else if (inputs.right) {
-      player.x += SPEED;
+      player.x += playerSpeed;
+      player.isLeft = false;
     }
 
     if (isCollidingWithMap(player)) {
@@ -257,6 +268,7 @@ async function main() {
       y: spawn.y,
       kills: 0,
       deaths: 0,
+      isLeft: false,
     });
 
     await updateLobbyState(roomId, {
@@ -278,6 +290,11 @@ async function main() {
     socket.on("snowball", (angle) => {
       const player = getPlayer(socket.id);
       if (!player) return;
+      if (onFireCooldown.get(player.id)) return;
+      onFireCooldown.set(player.id, true);
+      setTimeout(() => {
+        onFireCooldown.set(player.id, false);
+      }, THROW_DELAY);
       snowballs.push({
         angle,
         x: player.x + PLAYER_SIZE / 2,

@@ -8,5 +8,6 @@ TODO
 - polish the UI a bit
 - learn more about latency and display in lobby somehow
 - fix diagonal movement
+- player names
 
 game deployed to: https://snowball-battle.vercel.app/

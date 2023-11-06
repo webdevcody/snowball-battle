@@ -58,7 +58,7 @@ export default function Lobby() {
 
   function GameCard({ lobby }: { lobby: Lobby }) {
     return (
-      <Card className="w-[350px]">
+      <Card>
         <CardHeader>
           <CardTitle> {getLobbyConfig(lobby, "roomName")}</CardTitle>
           <CardDescription>

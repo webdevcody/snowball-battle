@@ -7,6 +7,7 @@ type Player = {
   id: string;
   x: number;
   y: number;
+  isLeft: boolean;
   kills: number;
   deaths: number;
 };
@@ -34,6 +35,9 @@ export async function start({
 
   const santaImage = new Image();
   santaImage.src = "/santa.png";
+
+  const santaLeftImage = new Image();
+  santaLeftImage.src = "/santa-left.png";
 
   const walkSnow = new Audio("walk-snow.mp3");
 
@@ -147,8 +151,8 @@ export async function start({
 
   window.addEventListener("click", (e) => {
     const angle = Math.atan2(
-      e.clientY - canvasEl.height / 2,
-      e.clientX - canvasEl.width / 2
+      e.clientY - canvasEl.height / 2 - 16,
+      e.clientX - canvasEl.width / 2 - 16
     );
     socket.emit("snowball", angle);
   });
@@ -208,7 +212,11 @@ export async function start({
     }
 
     for (const player of players) {
-      canvas.drawImage(santaImage, player.x - cameraX, player.y - cameraY);
+      canvas.drawImage(
+        player.isLeft ? santaLeftImage : santaImage,
+        player.x - cameraX,
+        player.y - cameraY
+      );
     }
 
     for (const snowball of snowballs) {
