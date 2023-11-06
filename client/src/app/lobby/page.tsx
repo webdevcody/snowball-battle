@@ -52,8 +52,11 @@ export default function Lobby() {
         <CardHeader>
           <CardTitle> {getLobbyConfig(lobby, "roomName")}</CardTitle>
           <CardDescription>
-            Slots {getLobbyState(lobby, "numberOfPlayers") ?? 0} /{" "}
-            {getLobbyConfig(lobby, "capacity")}
+            <div>
+              Slots {getLobbyState(lobby, "numberOfPlayers") ?? 0} /
+              {getLobbyConfig(lobby, "capacity")}
+            </div>
+            <div>{lobby.region}</div>
           </CardDescription>
         </CardHeader>
         <CardContent>
