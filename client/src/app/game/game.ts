@@ -117,32 +117,32 @@ export async function start({
   };
 
   window.addEventListener("keydown", (e) => {
-    if (e.key === "w") {
+    if (e.code === "KeyW") {
       inputs["up"] = true;
-    } else if (e.key === "s") {
+    } else if (e.code === "KeyS") {
       inputs["down"] = true;
-    } else if (e.key === "d") {
+    } else if (e.code === "KeyD") {
       inputs["right"] = true;
-    } else if (e.key === "a") {
+    } else if (e.code === "KeyA") {
       inputs["left"] = true;
     }
-    if (["a", "s", "w", "d"].includes(e.key) && walkSnow.paused) {
+    if (["KeyA", "KeyS", "KeyW", "KeyD"].includes(e.code) && walkSnow.paused) {
       // walkSnow.play();
     }
     socket.emit("inputs", inputs);
   });
 
   window.addEventListener("keyup", (e) => {
-    if (e.key === "w") {
+    if (e.code === "KeyW") {
       inputs["up"] = false;
-    } else if (e.key === "s") {
+    } else if (e.code === "KeyS") {
       inputs["down"] = false;
-    } else if (e.key === "d") {
+    } else if (e.code === "KeyD") {
       inputs["right"] = false;
-    } else if (e.key === "a") {
+    } else if (e.code === "KeyA") {
       inputs["left"] = false;
     }
-    if (["a", "s", "w", "d"].includes(e.key)) {
+    if (["KeyA", "KeyS", "KeyW", "KeyD"].includes(e.code)) {
       walkSnow.pause();
       walkSnow.currentTime = 0;
     }
