@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { loadMap } from "./mapLoader";
 import { updateLobbyState } from "./models/lobby";
-import { getRoomInfo } from "./models/room";
+import { destroyRoom, getRoomInfo } from "./models/room";
 
 const app = express();
 const httpServer = createServer(app);
@@ -144,6 +144,11 @@ function tick(delta: number) {
 
           if (ownerOfSnowball.kills >= roomConfig!.winningScore) {
             io.emit("end", ownerOfSnowball.id);
+
+            setTimeout(async () => {
+              await destroyRoom(roomId);
+              process.exit(1);
+            }, 2000);
           }
         }
         io.emit("death", { victim: player, killer: ownerOfSnowball });
@@ -161,12 +166,15 @@ function tick(delta: number) {
 }
 
 let roomConfig;
+let roomId: string;
 
 async function main() {
   ({ ground2D, decal2D } = await loadMap());
 
   io.on("connect", async (socket) => {
-    const roomId = socket.handshake.query.roomId as string;
+    if (!roomId) {
+      roomId = socket.handshake.query.roomId as string;
+    }
     const roomInfo = await getRoomInfo(roomId);
     roomConfig = JSON.parse(roomInfo.roomConfig!);
 

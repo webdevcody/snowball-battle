@@ -20,3 +20,16 @@ export async function getRoomInfo(roomId: string): Promise<Room> {
     });
   }
 }
+
+export async function destroyRoom(roomId: string) {
+  if (IS_LOCAL) {
+    return;
+  } else {
+    roomClient.destroyRoom(HATHORA_APP_ID, roomId, {
+      headers: {
+        Authorization: `Bearer ${HATHORA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+  }
+}

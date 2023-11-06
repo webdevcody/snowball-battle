@@ -77,6 +77,7 @@ export async function start({
   });
 
   socket.on("end", (winner: string) => {
+    socket.disconnect();
     onGameOver(winner);
   });
 
