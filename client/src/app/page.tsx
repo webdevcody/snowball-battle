@@ -7,14 +7,17 @@ import { getNickname, persistNickname } from "@/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { christmasFontNormal } from "./fonts";
 
 export default function LandingPage() {
   const router = useRouter();
   const [nickname, setNickname] = useState(getNickname());
 
   return (
-    <section className="w-full h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <h1 className="text-5xl font-bold text-gray-800 dark:text-gray-200 mb-8">
+    <section className="w-full pt-24 h-screen flex flex-col items-center bg-gray-100 dark:bg-gray-900">
+      <h1
+        className={`text-5xl font-bold text-gray-800 dark:text-gray-200 mb-8 ${christmasFontNormal.className}`}
+      >
         Welcome to Snowball Battle!
       </h1>
       <Image

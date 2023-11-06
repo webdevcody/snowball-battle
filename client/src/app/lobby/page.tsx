@@ -20,6 +20,7 @@ import Link from "next/link";
 import { getNickname } from "@/lib/utils";
 import clsx from "clsx";
 import LoadingLobbySpinner from "./spinner";
+import { christmasFontNormal } from "../fonts";
 
 const lobbyClient = new LobbyV2Api();
 
@@ -96,12 +97,13 @@ export default function Lobby() {
       {lobbyState === "VIEW" && (
         <section className="w-full text-white h-screen">
           <div className="container mx-auto px-4 py-8">
-            <h1 className="text-4xl font-bold text-center mb-2">
+            <h1
+              className={`mt-8 text-4xl font-bold text-center mb-2 ${christmasFontNormal.className}`}
+            >
               The Battle Lobby
             </h1>
-            <h2 className="text-xl text-center mb-8">
-              {nickname}
-              <br />
+            <h2 className={`text-xl text-center my-8`}>
+              <div className={christmasFontNormal.className}>{nickname}</div>
               <Link
                 href="/"
                 className="ml-2 text-xs text-red-400 hover:text-red-500"
@@ -135,7 +137,9 @@ export default function Lobby() {
                   "col-span-1": !hasRooms,
                 })}
               >
-                <h2 className="text-2xl font-semibold mb-4 text-white">
+                <h2
+                  className={`text-2xl font-semibold mb-4 text-white ${christmasFontNormal.className}`}
+                >
                   Create a New Room
                 </h2>
 

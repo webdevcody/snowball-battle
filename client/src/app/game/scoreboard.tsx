@@ -19,6 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Score } from "./page";
+import clsx from "clsx";
+import { christmasFontNormal } from "../fonts";
 
 export function ScoreBoard({
   scores,
@@ -36,9 +38,9 @@ export function ScoreBoard({
       cell(value) {
         return (
           <span
-            className={
-              myPlayerId === value.row.original.player ? "text-red-500" : ""
-            }
+            className={clsx(christmasFontNormal.className, {
+              "text-red-500": myPlayerId === value.row.original.player,
+            })}
           >
             {(value.getValue() as string).substring(0, 14)}
           </span>
