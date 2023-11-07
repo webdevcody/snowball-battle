@@ -274,7 +274,7 @@ export async function createRoom(
           (player.x + PLAYER_SIZE / 2 - snowball.x) ** 2 +
             (player.y + PLAYER_SIZE / 2 - snowball.y) ** 2
         );
-        if (distance <= PLAYER_SIZE / 2) {
+        if (distance <= PLAYER_SIZE) {
           const spawn = getRandomSpawn();
           player.x = spawn.x;
           player.y = spawn.y;
