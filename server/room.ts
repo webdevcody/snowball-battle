@@ -351,7 +351,7 @@ export async function createRoom(
   }
 
   async function onDisconnect(socket: Socket) {
-    sockets = sockets.filter((s) => s.id === socket.id);
+    sockets = sockets.filter((s) => s.id !== socket.id);
     players = players.filter((player) => player.id !== socket.id);
 
     try {

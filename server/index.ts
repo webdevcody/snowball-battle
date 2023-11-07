@@ -37,7 +37,7 @@ async function main() {
       console.log(`Player disconnected: ${socket.id}`);
       const room = rooms.get(roomId);
       if (room) {
-        rooms.get(roomId).onDisconnect(socket);
+        room.onDisconnect(socket);
       }
     });
   });
