@@ -54,7 +54,10 @@ export async function start({
   canvasEl.height = window.innerHeight;
   const canvas = canvasEl.getContext("2d")!;
 
-  const socket = io(websocketUrl);
+  const socket = io(websocketUrl, {
+    transports: ["websocket"],
+    upgrade: false,
+  });
 
   let groundMap = [[]];
   let decalMap = [[]];
