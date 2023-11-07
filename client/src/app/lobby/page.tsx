@@ -3,24 +3,15 @@
 import { useEffect, useState } from "react";
 import { Lobby, LobbyV2Api } from "@hathora/hathora-cloud-sdk";
 import { HATHORA_APP_ID } from "../../config";
-import { useRouter } from "next/navigation";
-import { formatDistance } from "date-fns";
 import CreatingGameLoader from "./creating-game-loader";
 import { CreateRoomSection } from "./create-room-section";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getNickname } from "@/lib/utils";
 import clsx from "clsx";
 import LoadingLobbySpinner from "./spinner";
 import { christmasFontNormal } from "../fonts";
+import { GameCard } from "./lobby-card";
+import { useRegionLatencies } from "./use-region-latencies";
 
 const lobbyClient = new LobbyV2Api();
 
@@ -33,11 +24,11 @@ function useNickname() {
 }
 
 export default function Lobby() {
+  const latencies = useRegionLatencies();
   const [lobbies, setLobbies] = useState<Lobby[]>([]);
   const [lobbyState, setLobbyState] = useState<"LOADING" | "VIEW" | "CREATING">(
     "LOADING"
   );
-  const router = useRouter();
   const nickname = useNickname();
 
   useEffect(() => {
@@ -47,48 +38,6 @@ export default function Lobby() {
       setLobbyState("VIEW");
     })();
   }, []);
-
-  async function joinRoom(roomId: string) {
-    router.push(`/game?roomId=${roomId}`);
-  }
-
-  function getLobbyConfig(lobby: Lobby, key: string) {
-    return lobby.initialConfig[key] as string;
-  }
-
-  function getLobbyState(lobby: Lobby, key: string): string | undefined {
-    return (lobby.state as any)?.[key];
-  }
-
-  function GameCard({ lobby }: { lobby: Lobby }) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle> {getLobbyConfig(lobby, "roomName")}</CardTitle>
-          <CardDescription>
-            <div>
-              Slots {getLobbyState(lobby, "numberOfPlayers") ?? 0} /
-              {getLobbyConfig(lobby, "capacity")}
-            </div>
-            <div>{lobby.region}</div>
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          Created{" "}
-          {formatDistance(lobby.createdAt, new Date(), { addSuffix: true })}
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button
-            onClick={() => {
-              joinRoom(lobby.roomId);
-            }}
-          >
-            Join Room
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
 
   const hasRooms = lobbies.length > 0;
 
@@ -123,7 +72,15 @@ export default function Lobby() {
                     <div className="rounded-lg shadow-md">
                       <div className="grid grid-cols-3 gap-4">
                         {lobbies.map((lobby) => (
-                          <GameCard key={lobby.roomId} lobby={lobby} />
+                          <GameCard
+                            latency={
+                              latencies?.find(
+                                (latency) => latency.region === lobby.region
+                              )?.latency ?? 0
+                            }
+                            key={lobby.roomId}
+                            lobby={lobby}
+                          />
                         ))}
                       </div>
                     </div>
