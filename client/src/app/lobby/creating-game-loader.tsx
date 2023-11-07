@@ -17,7 +17,7 @@ export default function CreatingGameLoader() {
         <h1
           className={`text-5xl font-bold tracking-tighter text-white ${christmasFontNormal.className}`}
         >
-          It is so peaceful, for now... creating your room
+          It is so peaceful, for now...
         </h1>
         <div className="animate-spin w-16 h-16 border-t-2 border-b-2 border-white rounded-full" />
         <p className="text-xl text-zinc-200">
