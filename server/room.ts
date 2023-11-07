@@ -3,6 +3,7 @@ import { loadMap } from "./mapLoader";
 import { updateLobbyState } from "./models/lobby";
 import { destroyRoom } from "./models/room";
 import { Socket } from "socket.io";
+import { maxBy } from "lodash";
 
 type PlayerId = string;
 
@@ -42,6 +43,8 @@ export async function createRoom(
   console.log(`Creating rooms with id of ${roomId}`);
 
   const THROW_DELAY = 500;
+  const GAME_LENGTH = 3 * 60 * 1000;
+  let timeLeft = GAME_LENGTH;
   const SPAWN_POINTS = [
     {
       x: 813,
@@ -112,8 +115,19 @@ export async function createRoom(
 
   ({ ground2D, decal2D } = await loadMap());
 
+  const endTimer = setTimeout(() => {
+    const topPlayer = maxBy(players, (p) => p.kills)!;
+    declareWinner(topPlayer.nickname);
+  }, GAME_LENGTH);
+
+  const remainingInterval = setInterval(() => {
+    broadcast("remaining", timeLeft);
+  });
+
   async function endRoom() {
     console.log(`Ending room of id ${roomId}`);
+    clearInterval(remainingInterval);
+    clearTimeout(endTimer);
     broadcast("end", "no one");
     await destroyRoom(roomId);
     clearInterval(interval);
@@ -128,6 +142,13 @@ export async function createRoom(
 
   function getPlayer(playerId: string) {
     return players.find((p) => p.id === playerId);
+  }
+
+  function declareWinner(winner: string) {
+    broadcast("end", winner);
+    setTimeout(async () => {
+      await endRoom();
+    }, 2000);
   }
 
   function isColliding(rect1: Rect, rect2: Rect) {
@@ -264,11 +285,7 @@ export async function createRoom(
             ownerOfSnowball.kills++;
 
             if (ownerOfSnowball.kills >= roomConfig!.winningScore) {
-              broadcast("end", ownerOfSnowball.nickname);
-
-              setTimeout(async () => {
-                await endRoom();
-              }, 2000);
+              declareWinner(ownerOfSnowball.nickname);
             }
           }
           broadcast("death", { victim: player, killer: ownerOfSnowball });
@@ -322,6 +339,7 @@ export async function createRoom(
 
     broadcast("players", players);
     broadcast("refresh", undefined);
+    broadcast("remaining", timeLeft);
 
     socket.emit("map", {
       ground: ground2D,
@@ -376,6 +394,7 @@ export async function createRoom(
     const now = Date.now();
     const delta = now - lastUpdate;
     tick(delta);
+    timeLeft -= delta;
     lastUpdate = now;
   }, 1000 / TICK_RATE);
 

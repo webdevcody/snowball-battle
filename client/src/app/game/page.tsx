@@ -20,6 +20,7 @@ export default function Game() {
   const [scores, setScores] = useState<Score[]>([]);
   const router = useRouter();
   const playerIdRef = useRef<any>(null);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     const roomId = params.get("roomId");
@@ -35,6 +36,9 @@ export default function Game() {
       },
       onDisconnect() {
         router.push(`/disconnect`);
+      },
+      onTimeLeft(newTimeLeft) {
+        setTimeLeft(newTimeLeft);
       },
       playerIdRef,
     });
@@ -58,6 +62,11 @@ export default function Game() {
             <UnplugIcon /> Disconnect
           </Button>
         </Link>
+      </div>
+      <div className="absolute top-4 flex justify-center w-full">
+        <div className="rounded-xl p-4 py-2 text-xs bg-gray-900 text-white">
+          {Math.floor(timeLeft / 1000)} second remaining
+        </div>
       </div>
     </main>
   );

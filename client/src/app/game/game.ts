@@ -20,12 +20,14 @@ export async function start({
   onScoresUpdated,
   onGameOver,
   onDisconnect,
+  onTimeLeft,
   playerIdRef,
 }: {
   roomId: string;
   onScoresUpdated: (newScores: Score[]) => void;
   onGameOver: (winner: string) => void;
   onDisconnect: () => void;
+  onTimeLeft: (timeLeft: number) => void;
   playerIdRef: MutableRefObject<any>;
 }) {
   let isRunning = true;
@@ -117,6 +119,10 @@ export async function start({
 
   socket.on("disconnect", () => {
     onDisconnect();
+  });
+
+  socket.on("remaining", (timeLeft: number) => {
+    onTimeLeft(timeLeft);
   });
 
   const inputs = {
