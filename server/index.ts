@@ -40,6 +40,10 @@ async function main() {
         room.onDisconnect(socket);
       }
     });
+
+    socket.on("ping", () => {
+      socket.emit("pong");
+    });
   });
 
   app.use(express.static("client"));

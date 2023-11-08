@@ -21,6 +21,7 @@ export default function Game() {
   const router = useRouter();
   const playerIdRef = useRef<any>(null);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [latency, setLatency] = useState(0);
 
   useEffect(() => {
     const roomId = params.get("roomId");
@@ -40,6 +41,7 @@ export default function Game() {
       onTimeLeft(newTimeLeft) {
         setTimeLeft(newTimeLeft);
       },
+      setLatency,
       playerIdRef,
     });
 
@@ -56,12 +58,15 @@ export default function Game() {
       <div className="absolute top-4 right-4">
         <ScoreBoard scores={scores} myPlayerId={playerIdRef.current} />
       </div>
-      <div className="absolute top-4 left-4">
+      <div className="absolute top-4 left-4 flex gap-2">
         <Link href="/disconnect">
-          <Button variant={"secondary"} className="flex gap-4">
+          <Button variant={"secondary"} className="flex gap-4 z-10 relative">
             <UnplugIcon /> Disconnect
           </Button>
         </Link>
+        <div className="text-black bg-white border border-black rounded w-fit p-2">
+          {latency} ms
+        </div>
       </div>
       <div className="absolute top-4 flex justify-center w-full">
         <div className="rounded-xl p-4 py-2 text-xs bg-gray-900 text-white">

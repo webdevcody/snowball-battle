@@ -22,12 +22,14 @@ export async function start({
   onDisconnect,
   onTimeLeft,
   playerIdRef,
+  setLatency,
 }: {
   roomId: string;
   onScoresUpdated: (newScores: Score[]) => void;
   onGameOver: (winner: string) => void;
   onDisconnect: () => void;
   onTimeLeft: (timeLeft: number) => void;
+  setLatency: (latency: number) => void;
   playerIdRef: MutableRefObject<any>;
 }) {
   let isRunning = true;
@@ -83,6 +85,13 @@ export async function start({
     onScoresUpdated(newScores);
   }
 
+  let pingStart = Date.now();
+
+  let pingInterval = setInterval(() => {
+    pingStart = Date.now();
+    socket.emit("ping");
+  }, 1000);
+
   socket.on("connect", () => {
     playerIdRef.current = socket.id;
   });
@@ -123,6 +132,10 @@ export async function start({
 
   socket.on("remaining", (timeLeft: number) => {
     onTimeLeft(timeLeft);
+  });
+
+  socket.on("pong", () => {
+    setLatency(Date.now() - pingStart);
   });
 
   const inputs = {
@@ -257,6 +270,7 @@ export async function start({
 
   return {
     cleanup() {
+      clearInterval(pingInterval);
       isRunning = false;
       socket.disconnect();
     },
