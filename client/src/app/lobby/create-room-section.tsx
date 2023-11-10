@@ -1,3 +1,5 @@
+"use client";
+
 import {
   SelectValue,
   SelectTrigger,
@@ -15,6 +17,8 @@ import { Region } from "@hathora/hathora-cloud-sdk";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { useRegionLatencies } from "./use-region-latencies";
+import { LatencyIcon } from "./latency-icon";
 
 const REGIONS = Object.values(Region);
 
@@ -23,6 +27,7 @@ export function CreateRoomSection({ onRoomCreated }) {
   const [roomName, setRoomName] = useState("");
   const [capacity, setCapacity] = useState(8);
   const [region, setRegion] = useState<Region>("Washington_DC");
+  const { getLatency } = useRegionLatencies();
 
   async function createNewRoom() {
     onRoomCreated();
@@ -69,7 +74,10 @@ export function CreateRoomSection({ onRoomCreated }) {
               <SelectLabel>Regions</SelectLabel>
               {REGIONS.map((region) => (
                 <SelectItem key={region} value={region}>
-                  {region}
+                  <div className="flex gap-4">
+                    <div>{region}</div>
+                    <LatencyIcon iconSize={16} latency={getLatency(region)} />
+                  </div>
                 </SelectItem>
               ))}
             </SelectGroup>

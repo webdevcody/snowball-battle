@@ -24,7 +24,7 @@ function useNickname() {
 }
 
 export default function Lobby() {
-  const latencies = useRegionLatencies();
+  const { getLatency } = useRegionLatencies();
   const [lobbies, setLobbies] = useState<Lobby[]>([]);
   const [lobbyState, setLobbyState] = useState<"LOADING" | "VIEW" | "CREATING">(
     "LOADING"
@@ -73,11 +73,7 @@ export default function Lobby() {
                       <div className="grid grid-cols-3 gap-4">
                         {lobbies.map((lobby) => (
                           <GameCard
-                            latency={
-                              latencies?.find(
-                                (latency) => latency.region === lobby.region
-                              )?.latency ?? 0
-                            }
+                            latency={getLatency(lobby.region)}
                             key={lobby.roomId}
                             lobby={lobby}
                           />
