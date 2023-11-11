@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { loadMap } from "./mapLoader";
-import { updateLobbyState } from "./models/lobby";
-import { destroyRoom } from "./models/room";
+import { destroyRoom, getRoomInfo, updateRoomConfig } from "./models/room";
 import { Socket } from "socket.io";
 import { maxBy } from "lodash";
 
@@ -330,9 +329,18 @@ export async function createRoom(
     });
 
     try {
-      await updateLobbyState(roomId, {
-        numberOfPlayers: players.length,
-      });
+      const room = await getRoomInfo(roomId);
+      const config = JSON.parse(room.roomConfig ?? "{}");
+
+      await updateRoomConfig(
+        {
+          roomConfig: JSON.stringify({
+            ...config,
+            numberOfPlayers: players.length,
+          }),
+        },
+        roomId
+      );
     } catch (err) {
       // lobby was removed, but still let the players play if they want on a private room id
     }
@@ -373,9 +381,18 @@ export async function createRoom(
     players = players.filter((player) => player.id !== socket.id);
 
     try {
-      await updateLobbyState(roomId, {
-        numberOfPlayers: players.length,
-      });
+      const room = await getRoomInfo(roomId);
+      const config = JSON.parse(room.roomConfig ?? "{}");
+
+      await updateRoomConfig(
+        {
+          roomConfig: JSON.stringify({
+            ...config,
+            numberOfPlayers: players.length,
+          }),
+        },
+        roomId
+      );
     } catch (err) {
       // still let players play
     }

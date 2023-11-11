@@ -1,6 +1,6 @@
-import { HATHORA_APP_ID, USE_LOCAL_WS } from "@/config";
-import { ConnectionInfoV2, RoomV2Api } from "@hathora/hathora-cloud-sdk";
-const roomClient = new RoomV2Api();
+import { USE_LOCAL_WS } from "@/config";
+import { ConnectionInfoV2 } from "@hathora/hathora-cloud-sdk";
+import { hathoraClient } from "../lib/hathora";
 
 export async function getConnectionInfo(
   roomId: string
@@ -13,6 +13,11 @@ export async function getConnectionInfo(
       },
     } as ConnectionInfoV2;
   } else {
-    return roomClient.getConnectionInfo(HATHORA_APP_ID, roomId);
+    const response = await hathoraClient.roomV2.getConnectionInfo(roomId);
+    const info = response.connectionInfoV2;
+    if (!info) {
+      throw new Error(`could not get the connection info for room ${roomId}`);
+    }
+    return info;
   }
 }

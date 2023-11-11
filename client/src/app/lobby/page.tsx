@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Lobby, LobbyV2Api } from "@hathora/hathora-cloud-sdk";
-import { HATHORA_APP_ID } from "../../config";
 import CreatingGameLoader from "./creating-game-loader";
 import { CreateRoomSection } from "./create-room-section";
 import Link from "next/link";
@@ -12,8 +11,8 @@ import LoadingLobbySpinner from "./spinner";
 import { christmasFontNormal } from "../fonts";
 import { GameCard } from "./lobby-card";
 import { useRegionLatencies } from "./use-region-latencies";
-
-const lobbyClient = new LobbyV2Api();
+import { listActivePublicLobbies } from "@/api/lobby";
+import { LobbyV3 } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 
 function useNickname() {
   const [nickname, setNickname] = useState("anonymous");
@@ -25,7 +24,7 @@ function useNickname() {
 
 export default function Lobby() {
   const { getLatency } = useRegionLatencies();
-  const [lobbies, setLobbies] = useState<Lobby[]>([]);
+  const [lobbies, setLobbies] = useState<LobbyV3[]>([]);
   const [lobbyState, setLobbyState] = useState<"LOADING" | "VIEW" | "CREATING">(
     "LOADING"
   );
@@ -33,7 +32,7 @@ export default function Lobby() {
 
   useEffect(() => {
     (async () => {
-      const lobbies = await lobbyClient.listActivePublicLobbies(HATHORA_APP_ID);
+      const lobbies = await listActivePublicLobbies();
       setLobbies(lobbies);
       setLobbyState("VIEW");
     })();

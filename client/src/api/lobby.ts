@@ -1,29 +1,22 @@
 import { HATHORA_APP_ID, USE_LOCAL_WS, WINNING_SCORE } from "@/config";
+import { hathoraClient } from "@/lib/hathora";
 import {
-  AuthV1Api,
-  Lobby,
-  LobbyV2Api,
+  LobbyV3,
+  LobbyVisibility,
   Region,
-  RoomV2Api,
-} from "@hathora/hathora-cloud-sdk";
+} from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
+import { getConnectionInfo } from "./room";
 
-const roomClient = new RoomV2Api();
-const authApi = new AuthV1Api();
-const lobbyClient = new LobbyV2Api();
+export const REGIONS = Object.values(Region);
+export type RegionValues = `${Region}`;
 
-export const REGIONS = [""];
-
-async function isReadyForConnect(
-  appId: string,
-  roomClient: RoomV2Api,
-  roomId: string
-) {
+async function isReadyForConnect(roomId: string) {
   if (USE_LOCAL_WS) return;
   const MAX_CONNECT_ATTEMPTS = 50;
   const TRY_CONNECT_INTERVAL_MS = 1000;
 
   for (let i = 0; i < MAX_CONNECT_ATTEMPTS; i++) {
-    const connetionInfo = await roomClient.getConnectionInfo(appId, roomId);
+    const connetionInfo = await getConnectionInfo(roomId);
     if (connetionInfo.status === "active") {
       return;
     }
@@ -40,19 +33,41 @@ export async function createLobby({
   capacity,
 }: {
   roomName: string;
-  region: Region;
+  region: RegionValues;
   capacity: number;
-}): Promise<Lobby> {
-  const userInfo = await authApi.loginAnonymous(HATHORA_APP_ID);
-  const lobby = await lobbyClient.createLobby(HATHORA_APP_ID, userInfo.token, {
-    visibility: USE_LOCAL_WS ? "local" : "public",
-    region,
-    initialConfig: {
-      capacity,
-      winningScore: WINNING_SCORE,
-      roomName,
+}): Promise<LobbyV3> {
+  const loginResponse = await hathoraClient.authV1.loginAnonymous();
+  const loginInfo = loginResponse.loginResponse;
+  if (!loginInfo) {
+    throw new Error(`could not log in to hathora`);
+  }
+
+  const response = await hathoraClient.lobbyV3.createLobby(
+    {
+      createLobbyV3Params: {
+        visibility: (USE_LOCAL_WS ? "local" : "public") as LobbyVisibility,
+        region: region as Region,
+        roomConfig: JSON.stringify({
+          capacity,
+          winningScore: WINNING_SCORE,
+          roomName,
+        }),
+      },
     },
-  });
-  await isReadyForConnect(HATHORA_APP_ID, roomClient, lobby.roomId);
-  return lobby;
+    {
+      playerAuth: loginInfo.token,
+    }
+  );
+
+  const lobbyInfo = response.lobbyV3;
+  if (!lobbyInfo) {
+    throw new Error(`could not create a lobby`);
+  }
+  await isReadyForConnect(HATHORA_APP_ID);
+  return lobbyInfo;
+}
+
+export async function listActivePublicLobbies() {
+  const response = await hathoraClient.lobbyV3.listActivePublicLobbies();
+  return response.classes ?? [];
 }

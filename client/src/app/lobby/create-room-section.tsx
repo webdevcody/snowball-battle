@@ -10,23 +10,21 @@ import {
   Select,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { createLobby } from "@/api/lobby";
+import { REGIONS, RegionValues, createLobby } from "@/api/lobby";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Region } from "@hathora/hathora-cloud-sdk";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useRegionLatencies } from "./use-region-latencies";
 import { LatencyIcon } from "./latency-icon";
-
-const REGIONS = Object.values(Region);
+import { Region } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 
 export function CreateRoomSection({ onRoomCreated }) {
   const router = useRouter();
   const [roomName, setRoomName] = useState("");
   const [capacity, setCapacity] = useState(8);
-  const [region, setRegion] = useState<Region>("Washington_DC");
+  const [region, setRegion] = useState<RegionValues>("Washington_DC");
   const { getLatency } = useRegionLatencies();
 
   async function createNewRoom() {
