@@ -51,6 +51,7 @@ export async function createLobby({
           capacity,
           winningScore: WINNING_SCORE,
           roomName,
+          numberOfPlayers: 0,
         }),
       },
     },

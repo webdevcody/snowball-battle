@@ -28,7 +28,7 @@ export function GameCard({
   };
 
   return (
-    <Card>
+    <Card className="bg-gray-700">
       <CardHeader>
         <CardTitle> {config.roomName}</CardTitle>
         <CardDescription className="flex flex-col gap-2">
