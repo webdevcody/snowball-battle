@@ -64,7 +64,7 @@ export async function createLobby({
   if (!lobbyInfo) {
     throw new Error(`could not create a lobby`);
   }
-  await isReadyForConnect(HATHORA_APP_ID);
+  await isReadyForConnect(lobbyInfo.roomId);
   return lobbyInfo;
 }
 
