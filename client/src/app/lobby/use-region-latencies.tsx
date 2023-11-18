@@ -39,9 +39,11 @@ type Latencies = {
 let cachedLatencies: Promise<Latencies> | undefined;
 
 async function getLatencies() {
-  const { discoveryResponse } = await hathoraClient.discoveryV1.getPingServiceEndpoints();
+  const { discoveryResponse } =
+    await hathoraClient.discoveryV1.getPingServiceEndpoints();
+  const endpoints = discoveryResponse ?? [];
   const regionLatencies = (await Promise.all(
-    discoveryResponse.map(getRegionLatency)
+    endpoints.map(getRegionLatency)
   )) as {
     region: Region;
     latency: number;
