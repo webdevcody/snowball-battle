@@ -1,5 +1,5 @@
 import { USE_LOCAL_WS } from "@/config";
-import { ConnectionInfoV2 } from "@hathora/hathora-cloud-sdk";
+import { ConnectionInfoV2 } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { hathoraClient } from "../lib/hathora";
 
 export async function getConnectionInfo(

@@ -1,7 +1,6 @@
-import { Room } from "@hathora/hathora-cloud-sdk";
+import { Room, UpdateRoomConfigParams } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { IS_LOCAL } from "../lib/config";
 import { hathoraSdk } from "../lib/hathora";
-import { UpdateRoomConfigParams } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 
 export async function updateRoomConfig(
   config: UpdateRoomConfigParams,

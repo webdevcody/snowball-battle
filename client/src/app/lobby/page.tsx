@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lobby, LobbyV2Api } from "@hathora/hathora-cloud-sdk";
 import CreatingGameLoader from "./creating-game-loader";
 import { CreateRoomSection } from "./create-room-section";
 import Link from "next/link";

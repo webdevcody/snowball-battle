@@ -1,9 +1,8 @@
 "use client";
 
-import { DiscoveryV1Api, Region } from "@hathora/hathora-cloud-sdk";
+import { Region } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { useEffect, useState } from "react";
-
-const discoveryClient = new DiscoveryV1Api();
+import { hathoraClient } from "../../lib/hathora";
 
 const getRegionLatency = ({ region, host, port }) =>
   new Promise<{ region: string; latency: number }>((resolve) => {
@@ -40,9 +39,9 @@ type Latencies = {
 let cachedLatencies: Promise<Latencies> | undefined;
 
 async function getLatencies() {
-  const pingServers = await discoveryClient.getPingServiceEndpoints();
+  const { discoveryResponse } = await hathoraClient.discoveryV1.getPingServiceEndpoints();
   const regionLatencies = (await Promise.all(
-    pingServers.map(getRegionLatency)
+    discoveryResponse.map(getRegionLatency)
   )) as {
     region: Region;
     latency: number;
