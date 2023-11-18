@@ -1,4 +1,7 @@
-import { Room, UpdateRoomConfigParams } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
+import {
+  Room,
+  UpdateRoomConfigParams,
+} from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { IS_LOCAL } from "../lib/config";
 import { hathoraSdk } from "../lib/hathora";
 
@@ -44,9 +47,6 @@ export async function destroyRoom(roomId: string) {
   if (IS_LOCAL) {
     return;
   } else {
-    const response = await hathoraSdk.roomV2.destroyRoom(roomId);
-    if (response.statusCode !== 200) {
-      throw new Error(`could not destroy room ${roomId}`);
-    }
+    await hathoraSdk.roomV2.destroyRoom(roomId);
   }
 }

@@ -85,7 +85,6 @@ export async function createRoom(
   const PLAYER_SIZE = 32;
   const TILE_SIZE = 32;
 
-  let roomEnded = false;
   let sockets: Socket[] = [];
   let players: Player[] = [];
   let snowballs: Snowball[] = [];
@@ -125,9 +124,7 @@ export async function createRoom(
   });
 
   async function endRoom() {
-    if (roomEnded) return;
     console.log(`Ending room of id ${roomId}`);
-    roomEnded = true;
     clearInterval(remainingInterval);
     clearTimeout(endTimer);
     broadcast("end", "no one");
