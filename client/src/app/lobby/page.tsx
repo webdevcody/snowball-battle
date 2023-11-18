@@ -30,11 +30,16 @@ export default function Lobby() {
   const nickname = useNickname();
 
   useEffect(() => {
-    (async () => {
+    async function refreshLobby() {
       const lobbies = await listActivePublicLobbies();
       setLobbies(lobbies);
-      setLobbyState("VIEW");
-    })();
+    }
+    let interval = setInterval(refreshLobby, 5000);
+    setLobbyState("VIEW");
+    refreshLobby();
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const hasRooms = lobbies.length > 0;
