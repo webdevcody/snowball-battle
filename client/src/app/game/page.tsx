@@ -54,7 +54,7 @@ export default function Game() {
 
   return (
     <main className="relative">
-      <canvas id="canvas"></canvas>
+      <canvas id="canvas" className="cursor-none"></canvas>
       <div className="absolute top-4 right-4 select-none">
         <ScoreBoard scores={scores} myPlayerId={playerIdRef.current} />
       </div>

@@ -13,6 +13,7 @@ type Player = {
   isLeft: boolean;
   kills: number;
   deaths: number;
+  canFire: boolean;
 };
 
 type Snowball = {
@@ -50,6 +51,9 @@ export async function start({
   let isRunning = true;
   const connectionInfo = await getConnectionInfo(roomId);
 
+  let mouseX = 0;
+  let mouseY = 0;
+
   const websocketUrl = `${USE_LOCAL_WS ? "ws://" : "wss://"}${
     connectionInfo.exposedPort?.host
   }:${
@@ -61,6 +65,12 @@ export async function start({
 
   const santaImage = new Image();
   santaImage.src = "/santa.png";
+
+  const crosshair = new Image();
+  crosshair.src = "/crosshair.png";
+
+  const crosshairArmed = new Image();
+  crosshairArmed.src = "/crosshair-armed.png";
 
   const santaLeftImage = new Image();
   santaLeftImage.src = "/santa-left.png";
@@ -100,6 +110,10 @@ export async function start({
       y: number;
     }
   >();
+
+  function getMyPlayer() {
+    return players.find((p) => p.id === socket.id);
+  }
 
   function refreshScores() {
     const newScores: Score[] = players.map((player) => ({
@@ -185,6 +199,12 @@ export async function start({
       // walkSnow.play();
     }
     socket.emit("inputs", inputs);
+  });
+
+  window.addEventListener("mousemove", (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+    console.log({ mouseX, mouseY });
   });
 
   window.addEventListener("keyup", (e) => {
@@ -319,6 +339,12 @@ export async function start({
       );
       canvas.fill();
     }
+
+    canvas.drawImage(
+      getMyPlayer()?.canFire ? crosshairArmed : crosshair,
+      mouseX - 16,
+      mouseY - 16
+    );
 
     lastUpdate = Date.now();
 
