@@ -20,7 +20,7 @@ export async function createRoom(
   const GAME_LENGTH = 3 * 60 * 1000;
   let timeLeft = GAME_LENGTH;
 
-  const TICK_RATE = 30;
+  const TICK_RATE = 20;
 
   const mapManager = await MapManager.create();
   let sockets: Socket[] = [];

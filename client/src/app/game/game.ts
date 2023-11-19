@@ -15,6 +15,21 @@ type Player = {
   deaths: number;
 };
 
+type Snowball = {
+  id: number;
+  x: number;
+  y: number;
+};
+
+const SERVER_TICK_RATE = 20;
+
+function calculateInterpolationFactor(frameRate) {
+  const effectiveTickRate = Math.max(SERVER_TICK_RATE, 1);
+  const idealFrameTime = 1 / frameRate;
+  const interpolationFactor = idealFrameTime * effectiveTickRate;
+  return Math.min(Math.max(interpolationFactor, 0), 1);
+}
+
 export async function start({
   roomId,
   onScoresUpdated,
@@ -66,14 +81,25 @@ export async function start({
   let groundMap = [[]];
   let decalMap = [[]];
   let players: Player[] = [];
-  let snowballs = [] as {
-    x: number;
-    y: number;
-  }[];
+  let snowballs: Snowball[] = [];
   let isFirstPlayersEvent = true;
 
   const TILE_SIZE = 32;
   const SNOWBALL_RADIUS = 5;
+  const playerInterpolations = new Map<
+    string,
+    {
+      x: number;
+      y: number;
+    }
+  >();
+  const snowballInterpolations = new Map<
+    number,
+    {
+      x: number;
+      y: number;
+    }
+  >();
 
   function refreshScores() {
     const newScores: Score[] = players.map((player) => ({
@@ -186,16 +212,47 @@ export async function start({
     socket.emit("snowball", angle);
   });
 
+  let lastUpdate = Date.now();
   function loop() {
-    canvas.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    const delta = Date.now() - lastUpdate;
+    const interpolationFactor = calculateInterpolationFactor(
+      Math.floor(1000 / delta)
+    );
+
+    for (const player of players) {
+      const interpolation = playerInterpolations.get(player.id);
+
+      const startX = interpolation ? interpolation.x : player.x;
+      const startY = interpolation ? interpolation.y : player.y;
+
+      playerInterpolations.set(player.id, {
+        x: startX + interpolationFactor * (player.x - startX),
+        y: startY + interpolationFactor * (player.y - startY),
+      });
+    }
+
+    for (const snowball of snowballs) {
+      const interpolation = snowballInterpolations.get(snowball.id);
+
+      const startX = interpolation ? interpolation.x : snowball.x;
+      const startY = interpolation ? interpolation.y : snowball.y;
+
+      snowballInterpolations.set(snowball.id, {
+        x: startX + interpolationFactor * (snowball.x - startX),
+        y: startY + interpolationFactor * (snowball.y - startY),
+      });
+    }
 
     const myPlayer = players.find((player) => player.id === socket.id);
     let cameraX = 0;
     let cameraY = 0;
     if (myPlayer) {
-      cameraX = Math.floor(myPlayer.x - canvasEl.width / 2);
-      cameraY = Math.floor(myPlayer.y - canvasEl.height / 2);
+      const interpolation = playerInterpolations.get(myPlayer.id)!;
+      cameraX = Math.floor(interpolation.x - canvasEl.width / 2);
+      cameraY = Math.floor(interpolation.y - canvasEl.height / 2);
     }
+
+    canvas.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
     const TILES_IN_ROW = 8;
 
@@ -241,25 +298,29 @@ export async function start({
     }
 
     for (const player of players) {
+      const interpolation = playerInterpolations.get(player.id)!;
       canvas.drawImage(
         player.isLeft ? santaLeftImage : santaImage,
-        player.x - cameraX,
-        player.y - cameraY
+        interpolation.x - cameraX,
+        interpolation.y - cameraY
       );
     }
 
     for (const snowball of snowballs) {
+      const interpolation = snowballInterpolations.get(snowball.id)!;
       canvas.fillStyle = "#ff0039";
       canvas.beginPath();
       canvas.arc(
-        snowball.x - cameraX,
-        snowball.y - cameraY,
+        interpolation.x - cameraX,
+        interpolation.y - cameraY,
         SNOWBALL_RADIUS,
         0,
         2 * Math.PI
       );
       canvas.fill();
     }
+
+    lastUpdate = Date.now();
 
     if (isRunning) {
       window.requestAnimationFrame(loop);

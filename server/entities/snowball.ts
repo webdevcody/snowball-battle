@@ -6,6 +6,7 @@ import { Inputs, PLAYER_SIZE, Player } from "./player";
 export const SNOWBALL_SPEED = 0.6;
 
 export class Snowball implements Collidable, Entity {
+  public id: number;
   public x: number;
   public y: number;
   public angle: number;
@@ -21,6 +22,7 @@ export class Snowball implements Collidable, Entity {
     this.angle = angle;
     this.playerId = playerId;
     this.timeLeft = 1000;
+    this.id = Math.random();
   }
 
   getHitbox() {
