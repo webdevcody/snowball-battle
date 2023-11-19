@@ -204,7 +204,6 @@ export async function start({
   window.addEventListener("mousemove", (event) => {
     mouseX = event.clientX;
     mouseY = event.clientY;
-    console.log({ mouseX, mouseY });
   });
 
   window.addEventListener("keyup", (e) => {
@@ -239,6 +238,8 @@ export async function start({
       Math.floor(1000 / delta)
     );
 
+    const maxIntDist = 100;
+
     for (const player of players) {
       const interpolation = playerInterpolations.get(player.id);
 
@@ -246,8 +247,14 @@ export async function start({
       const startY = interpolation ? interpolation.y : player.y;
 
       playerInterpolations.set(player.id, {
-        x: startX + interpolationFactor * (player.x - startX),
-        y: startY + interpolationFactor * (player.y - startY),
+        x:
+          Math.abs(player.x - startX) > maxIntDist
+            ? player.x
+            : startX + interpolationFactor * (player.x - startX),
+        y:
+          Math.abs(player.y - startY) > maxIntDist
+            ? player.y
+            : startY + interpolationFactor * (player.y - startY),
       });
     }
 
@@ -258,8 +265,14 @@ export async function start({
       const startY = interpolation ? interpolation.y : snowball.y;
 
       snowballInterpolations.set(snowball.id, {
-        x: startX + interpolationFactor * (snowball.x - startX),
-        y: startY + interpolationFactor * (snowball.y - startY),
+        x:
+          Math.abs(snowball.x - startX) > maxIntDist
+            ? snowball.x
+            : startX + interpolationFactor * (snowball.x - startX),
+        y:
+          Math.abs(snowball.y - startY) > maxIntDist
+            ? snowball.y
+            : startY + interpolationFactor * (snowball.y - startY),
       });
     }
 
