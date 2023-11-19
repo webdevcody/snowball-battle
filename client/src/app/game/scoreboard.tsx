@@ -38,7 +38,7 @@ export function ScoreBoard({
       cell(value) {
         return (
           <span
-            className={clsx(christmasFontNormal.className, {
+            className={clsx({
               "text-red-500": myPlayerId === value.row.original.player,
             })}
           >
@@ -68,7 +68,7 @@ export function ScoreBoard({
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full pointer-events-none">
       <div className="rounded-md border bg-white text-black">
         <Table>
           <TableHeader>

@@ -55,20 +55,23 @@ export default function Game() {
   return (
     <main className="relative">
       <canvas id="canvas"></canvas>
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 select-none">
         <ScoreBoard scores={scores} myPlayerId={playerIdRef.current} />
       </div>
       <div className="absolute top-4 left-4 flex gap-2">
         <Link href="/disconnect">
-          <Button variant={"secondary"} className="flex gap-4 z-10 relative">
+          <Button
+            variant={"secondary"}
+            className="flex gap-4 z-10 relative select-none"
+          >
             <UnplugIcon /> Disconnect
           </Button>
         </Link>
-        <div className="text-black bg-white border border-black rounded w-fit p-2">
+        <div className="text-black bg-white border border-black rounded w-fit p-2 select-none">
           {latency} ms
         </div>
       </div>
-      <div className="absolute top-4 flex justify-center w-full">
+      <div className="absolute top-4 flex justify-center w-full select-none">
         <div className="rounded-xl p-4 py-2 text-xs bg-gray-900 text-white">
           {Math.floor(timeLeft / 1000)} second remaining
         </div>
