@@ -1,10 +1,12 @@
 # Snowball Battle
 
-Welcome to my Snowball Battle multiplayer game! You can try playing the deployed version of this application here:
+Welcome to my Snowball Battle multiplayer game built using the https://hathora.dev/ service.
+
+You can try playing the deployed version of this application here:
 
 https://snowball-battle.vercel.app/
 
-This game is a snowball throwing arena game which includes the ability for user sto create game lobbies across 11 different regions, support up to 16 players in a room, and scale without any effort using the Hathora game services for the game server.
+This game is a snowball throwing arena game which includes the ability for user to create game lobbies across 11 different regions, support up to 16 players in a room, and scale without any effort using the Hathora game services for the game server.
 
 ### The start screen
 
@@ -43,7 +45,7 @@ npm install
 
 3. Setup .env files
 
-In hathora, create an account and an application. Copy your App Id and app secret from Hathora and place inside both client/.env and server/.env
+Setup a https://hathora.dev/ account and create an application. Copy your App Id and app secret from Hathora and place inside both client/.env and server/.env
 
 4. Run client and server
 
