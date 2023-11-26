@@ -1,4 +1,4 @@
-import { HATHORA_APP_ID, USE_LOCAL_WS, WINNING_SCORE } from "@/config";
+import { USE_LOCAL_WS, WINNING_SCORE } from "@/config";
 import { hathoraClient } from "@/lib/hathora";
 import {
   LobbyV3,
