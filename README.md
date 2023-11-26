@@ -7,13 +7,13 @@ https://snowball-battle.vercel.app/
 This game is a snowball throwing arena game which includes the ability for user sto create game lobbies across 11 different regions, support up to 16 players in a room, and scale without any effort using the Hathora game services for the game server.
 
 The start screen
-![screenshot of the game](./docs/start.png)
+![screenshot of the game](./docs/start.jpeg)
 
 Multi-Region support
-![screenshot of the region dropdown](./docs/latency.png)
+![screenshot of the region dropdown](./docs/latency.jpeg)
 
 Playing in a Room
-![screenshot of the game](./docs/game.png)
+![screenshot of the game](./docs/game.jpeg)
 
 ## How to Run Locally
 
