@@ -3,17 +3,20 @@ import { USE_LOCAL_WS } from "@/config";
 import { getConnectionInfo } from "@/api/room";
 import { Score } from "./page";
 import { MutableRefObject } from "react";
-import { getNickname } from "@/lib/utils";
+import { getNickname, getSantaColor } from "@/lib/utils";
 
 type Player = {
   id: string;
   x: number;
   nickname: string;
+  santaColor: string;
   y: number;
   isLeft: boolean;
   kills: number;
   deaths: number;
   canFire: boolean;
+  icon: HTMLImageElement;
+  iconLeft: HTMLImageElement;
 };
 
 type Snowball = {
@@ -58,13 +61,10 @@ export async function start({
     connectionInfo.exposedPort?.host
   }:${
     connectionInfo.exposedPort?.port
-  }?roomId=${roomId}&nickname=${getNickname()}`;
+  }?roomId=${roomId}&nickname=${getNickname()}&santa=${getSantaColor()}`;
 
   const mapImage = new Image();
   mapImage.src = "/snowy-sheet.png";
-
-  const santaImage = new Image();
-  santaImage.src = "/santa.png";
 
   const crosshair = new Image();
   crosshair.src = "/crosshair.png";
@@ -73,8 +73,6 @@ export async function start({
   crosshairArmed.src = "/crosshair-armed.png";
 
   const santaLeftImage = new Image();
-  santaLeftImage.src = "/santa-left.png";
-
   const walkSnow = new Audio("walk-snow.mp3");
 
   const canvasEl = document.getElementById("canvas") as HTMLCanvasElement;
@@ -332,8 +330,16 @@ export async function start({
 
     for (const player of players) {
       const interpolation = playerInterpolations.get(player.id)!;
+      // TODO make a function
+      if (player.icon === undefined || player.iconLeft === undefined) {
+        player.icon = new Image();
+        player.icon.src = `/santa-${player.santaColor.toLowerCase()}.png`;
+        player.iconLeft = new Image();
+        player.iconLeft.src = `/santa-${player.santaColor.toLowerCase()}-left.png`;
+      }
+      const icon = player.isLeft ? player.iconLeft : player.icon;
       canvas.drawImage(
-        player.isLeft ? santaLeftImage : santaImage,
+        icon,
         interpolation.x - cameraX,
         interpolation.y - cameraY
       );

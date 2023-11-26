@@ -18,6 +18,7 @@ export class Player implements Collidable {
   public isLeft: boolean;
   public kills: number;
   public nickname: string;
+  public santaColor: string;
   public deaths: number;
   public canFire: boolean;
 
@@ -30,7 +31,10 @@ export class Player implements Collidable {
     right: boolean;
   };
 
-  constructor(id: string, nickname: string) {
+  constructor(id: string, nickname: string, santaColor: string) {
+    console.log(`Creating player with id of ${id}`);
+    console.log(`Creating player with nickname of ${nickname}`);
+    console.log(`Creating player with santaColor of ${santaColor}`);
     this.id = id;
     this.x = 0;
     this.y = 0;
@@ -38,6 +42,7 @@ export class Player implements Collidable {
     this.deaths = 0;
     this.kills = 0;
     this.nickname = nickname;
+    this.santaColor = santaColor;
     this.canFire = true;
 
     this.inputs = {
