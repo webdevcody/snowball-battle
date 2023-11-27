@@ -114,7 +114,11 @@ export async function createRoom(
     broadcast("snowballs", snowballs);
   }
 
-  async function onConnect(socket: Socket, nickname: string, santaColor: string) {
+  async function onConnect(
+    socket: Socket,
+    nickname: string,
+    santaColor: string
+  ) {
     sockets.push(socket);
 
     if (players.length >= roomConfig.capacity) {
