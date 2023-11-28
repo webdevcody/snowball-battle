@@ -7,12 +7,14 @@ import { ScoreBoard } from "./scoreboard";
 import { Button } from "@/components/ui/button";
 import { UnplugIcon } from "lucide-react";
 import Link from "next/link";
+import { SantaColor } from "@/lib/player-options";
 
 export type Score = {
   kills: number;
   deaths: number;
   player: string;
   nickname: string;
+  santaColor: SantaColor;
 };
 
 export default function Game() {

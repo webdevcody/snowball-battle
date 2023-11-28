@@ -10,6 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Score } from "./page";
 import clsx from "clsx";
-import { christmasFontNormal } from "../fonts";
+import { getIconDetails } from "@/lib/player-options";
 
 export function ScoreBoard({
   scores,
@@ -36,14 +37,18 @@ export function ScoreBoard({
       accessorKey: "nickname",
       header: "Player",
       cell(value) {
+        const { image, alt } = getIconDetails(value.row.original.santaColor);
         return (
-          <span
-            className={clsx({
-              "text-red-500": myPlayerId === value.row.original.player,
-            })}
-          >
-            {(value.getValue() as string).substring(0, 14)}
-          </span>
+          <div className="flex gap-2">
+            <Image src={`/${image}`} width={12} height={12} alt={alt} />
+            <span
+              className={clsx({
+                "text-red-500": myPlayerId === value.row.original.player,
+              })}
+            >
+              {(value.getValue() as string).substring(0, 14)}
+            </span>
+          </div>
         );
       },
     },

@@ -4,19 +4,18 @@ import { getConnectionInfo } from "@/api/room";
 import { Score } from "./page";
 import { MutableRefObject } from "react";
 import { getNickname, getSantaColor } from "@/lib/utils";
+import { SANTA_COLORS, SantaColor, getIconDetails } from "@/lib/player-options";
 
 type Player = {
   id: string;
   x: number;
   nickname: string;
-  santaColor: string;
+  santaColor: SantaColor;
   y: number;
   isLeft: boolean;
   kills: number;
   deaths: number;
   canFire: boolean;
-  icon: HTMLImageElement;
-  iconLeft: HTMLImageElement;
 };
 
 type Snowball = {
@@ -62,6 +61,17 @@ export async function start({
   }:${
     connectionInfo.exposedPort?.port
   }?roomId=${roomId}&nickname=${getNickname()}&santa=${getSantaColor()}`;
+
+  const iconMap = new Map<string, HTMLImageElement>();
+  SANTA_COLORS.forEach((color) => {
+    const { image, label } = getIconDetails(color);
+    const icon = new Image();
+    icon.src = image;
+    iconMap.set(`${label}-false`, icon);
+    const iconLeft = new Image();
+    iconLeft.src = image.replace(".png", "-left.png");
+    iconMap.set(`${label}-true`, iconLeft);
+  });
 
   const mapImage = new Image();
   mapImage.src = "/snowy-sheet.png";
@@ -119,8 +129,18 @@ export async function start({
       deaths: player.deaths,
       player: player.id,
       nickname: player.nickname,
+      santaColor: player.santaColor,
     }));
     onScoresUpdated(newScores);
+  }
+
+  function getPlayerIcon(player: Player) {
+    const iconKey = `${player.santaColor}-${player.isLeft}`;
+    const icon = iconMap.get(iconKey);
+    if (!icon) {
+      throw new Error(`Could not find icon for ${iconKey}`);
+    }
+    return icon;
   }
 
   let pingStart = Date.now();
@@ -330,16 +350,8 @@ export async function start({
 
     for (const player of players) {
       const interpolation = playerInterpolations.get(player.id)!;
-      // TODO make a function
-      if (player.icon === undefined || player.iconLeft === undefined) {
-        player.icon = new Image();
-        player.icon.src = `/santa-${player.santaColor.toLowerCase()}.png`;
-        player.iconLeft = new Image();
-        player.iconLeft.src = `/santa-${player.santaColor.toLowerCase()}-left.png`;
-      }
-      const icon = player.isLeft ? player.iconLeft : player.icon;
       canvas.drawImage(
-        icon,
+        getPlayerIcon(player),
         interpolation.x - cameraX,
         interpolation.y - cameraY
       );

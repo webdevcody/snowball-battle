@@ -21,30 +21,7 @@ import { useRegionLatencies } from "./use-region-latencies";
 import { LatencyIcon } from "./latency-icon";
 import { Region } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { getSantaColor, persistSantaColor } from "@/lib/utils";
-
-type SantaOption = {
-  label: SantaColor;
-  image: string;
-  alt: string;
-};
-type SantaColor = "Red" | "Green" | "Blue";
-const SANTA_OPTIONS: SantaOption[] = [
-  {
-    label: "Red",
-    image: "santa-red.png",
-    alt: "The classic red santa icon",
-  },
-  {
-    label: "Blue",
-    image: "santa-blue.png",
-    alt: "A blue santa icon",
-  },
-  {
-    label: "Green",
-    image: "santa-green.png",
-    alt: "A green santa icon",
-  },
-];
+import { SANTA_COLORS, SantaColor, getIconDetails } from "@/lib/player-options";
 
 export function CreateRoomSection({ onRoomCreated }) {
   const router = useRouter();
@@ -52,9 +29,7 @@ export function CreateRoomSection({ onRoomCreated }) {
   const [capacity, setCapacity] = useState(8);
   const [region, setRegion] = useState<RegionValues>("Washington_DC");
   const { getLatency } = useRegionLatencies();
-  const [santa, setSanta] = useState<SantaOption>(
-    SANTA_OPTIONS.find((option) => option.label === getSantaColor())!
-  );
+  const [santa, setSanta] = useState<SantaColor>(getSantaColor() as SantaColor);
 
   async function createNewRoom() {
     onRoomCreated();
@@ -67,7 +42,7 @@ export function CreateRoomSection({ onRoomCreated }) {
       className="bg-gray-700 rounded-lg p-4 flex flex-col gap-8"
       onSubmit={(e) => {
         e.preventDefault();
-        persistSantaColor(santa.label);
+        persistSantaColor(santa);
         createNewRoom();
       }}
     >
@@ -115,15 +90,9 @@ export function CreateRoomSection({ onRoomCreated }) {
       <div className="flex flex-col gap-4">
         <Label>Santa Color</Label>
         <Select
-          value={santa.label}
+          value={santa}
           required
-          onValueChange={(value) => {
-            const selectedSanta = SANTA_OPTIONS.find(
-              (option) => option.label === value
-            );
-            if (!selectedSanta) {
-              return;
-            }
+          onValueChange={(selectedSanta: SantaColor) => {
             setSanta(selectedSanta);
           }}
         >
@@ -133,14 +102,22 @@ export function CreateRoomSection({ onRoomCreated }) {
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Select Icon</SelectLabel>
-              {SANTA_OPTIONS.map(({ label, image, alt }) => (
-                <SelectItem value={label}>
-                  <div className="flex gap-4">
-                    <Image src={`/${image}`} alt={alt} width={16} height={16} />
-                    <div>{label}</div>
-                  </div>
-                </SelectItem>
-              ))}
+              {SANTA_COLORS.map((color) => {
+                const { label, image, alt } = getIconDetails(color);
+                return (
+                  <SelectItem value={label} key={label}>
+                    <div className="flex gap-4">
+                      <Image
+                        src={`/${image}`}
+                        alt={alt}
+                        width={16}
+                        height={16}
+                      />
+                      <div>{label}</div>
+                    </div>
+                  </SelectItem>
+                );
+              })}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -160,7 +137,6 @@ export function CreateRoomSection({ onRoomCreated }) {
         />
         <p className="text-gray-300 mt-2">Max Players: {capacity}</p>
       </div>
-
       <Button type="submit">Create Room</Button>
     </form>
   );
