@@ -32,9 +32,6 @@ export class Player implements Collidable {
   };
 
   constructor(id: string, nickname: string, santaColor: string) {
-    console.log(`Creating player with id of ${id}`);
-    console.log(`Creating player with nickname of ${nickname}`);
-    console.log(`Creating player with santaColor of ${santaColor}`);
     this.id = id;
     this.x = 0;
     this.y = 0;
