@@ -21,6 +21,7 @@ async function main() {
     console.log(`Player connected: ${socket.id}`);
     const roomId = socket.handshake.query.roomId as string;
     const nickname = socket.handshake.query.nickname as string;
+    const santaColor = socket.handshake.query.santa as string;
 
     if (!rooms.has(roomId)) {
       const roomInfo = await getRoomInfo(roomId);
@@ -31,7 +32,7 @@ async function main() {
       rooms.set(roomId, room);
     }
 
-    rooms.get(roomId).onConnect(socket, nickname);
+    rooms.get(roomId).onConnect(socket, nickname, santaColor);
 
     socket.on("disconnect", async () => {
       console.log(`Player disconnected: ${socket.id}`);

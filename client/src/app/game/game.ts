@@ -3,12 +3,14 @@ import { USE_LOCAL_WS } from "@/config";
 import { getConnectionInfo } from "@/api/room";
 import { Score } from "./page";
 import { MutableRefObject } from "react";
-import { getNickname } from "@/lib/utils";
+import { getNickname, getSantaColor } from "@/lib/utils";
+import { SANTA_COLORS, SantaColor, getIconDetails } from "@/lib/player-options";
 
 type Player = {
   id: string;
   x: number;
   nickname: string;
+  santaColor: SantaColor;
   y: number;
   isLeft: boolean;
   kills: number;
@@ -58,13 +60,21 @@ export async function start({
     connectionInfo.exposedPort?.host
   }:${
     connectionInfo.exposedPort?.port
-  }?roomId=${roomId}&nickname=${getNickname()}`;
+  }?roomId=${roomId}&nickname=${getNickname()}&santa=${getSantaColor()}`;
+
+  const iconMap = new Map<string, HTMLImageElement>();
+  SANTA_COLORS.forEach((color) => {
+    const { image, label } = getIconDetails(color);
+    const icon = new Image();
+    icon.src = image;
+    iconMap.set(`${label}-false`, icon);
+    const iconLeft = new Image();
+    iconLeft.src = image.replace(".png", "-left.png");
+    iconMap.set(`${label}-true`, iconLeft);
+  });
 
   const mapImage = new Image();
   mapImage.src = "/snowy-sheet.png";
-
-  const santaImage = new Image();
-  santaImage.src = "/santa.png";
 
   const crosshair = new Image();
   crosshair.src = "/crosshair.png";
@@ -73,8 +83,6 @@ export async function start({
   crosshairArmed.src = "/crosshair-armed.png";
 
   const santaLeftImage = new Image();
-  santaLeftImage.src = "/santa-left.png";
-
   const walkSnow = new Audio("walk-snow.mp3");
 
   const canvasEl = document.getElementById("canvas") as HTMLCanvasElement;
@@ -121,8 +129,18 @@ export async function start({
       deaths: player.deaths,
       player: player.id,
       nickname: player.nickname,
+      santaColor: player.santaColor,
     }));
     onScoresUpdated(newScores);
+  }
+
+  function getPlayerIcon(player: Player) {
+    const iconKey = `${player.santaColor}-${player.isLeft}`;
+    const icon = iconMap.get(iconKey);
+    if (!icon) {
+      throw new Error(`Could not find icon for ${iconKey}`);
+    }
+    return icon;
   }
 
   let pingStart = Date.now();
@@ -333,7 +351,7 @@ export async function start({
     for (const player of players) {
       const interpolation = playerInterpolations.get(player.id)!;
       canvas.drawImage(
-        player.isLeft ? santaLeftImage : santaImage,
+        getPlayerIcon(player),
         interpolation.x - cameraX,
         interpolation.y - cameraY
       );
