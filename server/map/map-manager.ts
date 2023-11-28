@@ -1,7 +1,6 @@
-import { Player } from "../entities/player";
 import { loadMap } from "../mapLoader";
 import { Collidable } from "../traits/collidable";
-import { Rect, isColliding } from "../utils/geom";
+import { isColliding } from "../utils/geom";
 
 export const TILE_SIZE = 32;
 
