@@ -5,6 +5,7 @@ import { maxBy } from "lodash";
 import { PLAYER_SIZE, Player } from "./entities/player";
 import { MapManager, getRandomSpawn } from "./map/map-manager";
 import { Snowball } from "./entities/snowball";
+import { NONE } from "../common/input";
 
 export async function createRoom(
   roomId: string,
@@ -28,12 +29,7 @@ export async function createRoom(
   let snowballs: Snowball[] = [];
   const inputsMap = {} as Record<
     string,
-    {
-      up: boolean;
-      down: boolean;
-      left: boolean;
-      right: boolean;
-    }
+    number // TODO(Heath) we can type this better
   >;
 
   const endTimer = setTimeout(() => {
@@ -126,12 +122,7 @@ export async function createRoom(
       return;
     }
 
-    inputsMap[socket.id] = {
-      up: false,
-      down: false,
-      left: false,
-      right: false,
-    };
+    inputsMap[socket.id] = NONE;
 
     const spawn = getRandomSpawn();
 
