@@ -184,7 +184,14 @@ export async function start({
   });
 
   socket.on("players", (serverPlayers) => {
-    players = serverPlayers;
+    // Players can be the full list of players or just a delta
+    serverPlayers.forEach((serverPlayer, idx) => {
+      if (players && players[idx]) {
+        players[idx] = { ...players[idx], ...serverPlayer };
+      } else {
+        players.push(serverPlayer);
+      }
+    });
     if (isFirstPlayersEvent) {
       refreshScores();
     }
@@ -270,7 +277,6 @@ export async function start({
             : startY + interpolationFactor * (player.y - startY),
       });
     }
-
     for (const snowball of snowballs) {
       const interpolation = snowballInterpolations.get(snowball.id);
 
