@@ -1,6 +1,5 @@
 import { MapManager } from "../map/map-manager";
 import { Collidable } from "../traits/collidable";
-import { Rect } from "../utils/geom";
 
 export const PLAYER_SIZE = 32;
 
