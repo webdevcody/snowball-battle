@@ -32,35 +32,48 @@ export function ScoreBoard({
 }) {
   const sortedScores = scores.sort((a, b) => b.kills - a.kills);
 
-  const columns: ColumnDef<Score>[] = [
-    {
-      accessorKey: "nickname",
-      header: "Player",
-      cell(value) {
-        const { image, alt } = getIconDetails(value.row.original.santaColor);
-        return (
-          <div className="flex gap-2">
-            <Image src={`/${image}`} width={12} height={12} alt={alt} />
-            <span
-              className={clsx({
-                "text-red-500": myPlayerId === value.row.original.player,
-              })}
-            >
-              {(value.getValue() as string).substring(0, 14)}
-            </span>
-          </div>
-        );
+  const columns: ColumnDef<Score>[] = React.useMemo(
+    () => [
+      {
+        accessorKey: "santaColor",
+        header: "",
+        cell(value) {
+          const { image, alt } = getIconDetails(value.row.original.santaColor);
+          return (
+            <div className="flex gap-2 justify-center">
+              <Image src={`/${image}`} width={12} height={12} alt={alt} />
+            </div>
+          );
+        },
       },
-    },
-    {
-      accessorKey: "kills",
-      header: "Kills",
-    },
-    {
-      accessorKey: "deaths",
-      header: "Deaths",
-    },
-  ];
+      {
+        accessorKey: "nickname",
+        header: "Player",
+        cell(value) {
+          return (
+            <div className="flex gap-2">
+              <span
+                className={clsx({
+                  "text-red-500": myPlayerId === value.row.original.player,
+                })}
+              >
+                {(value.getValue() as string).substring(0, 14)}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "kills",
+        header: "Kills",
+      },
+      {
+        accessorKey: "deaths",
+        header: "Deaths",
+      },
+    ],
+    [myPlayerId]
+  );
 
   const table = useReactTable({
     data: sortedScores,
