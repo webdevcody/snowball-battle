@@ -1,7 +1,7 @@
 import { MapManager, getRandomSpawn } from "../map/map-manager";
 import { Collidable } from "../traits/collidable";
 import { Entity } from "../traits/entity";
-import { Inputs, PLAYER_SIZE, Player } from "./player";
+import { PLAYER_SIZE, Player } from "./player";
 
 export const SNOWBALL_SPEED = 0.6;
 

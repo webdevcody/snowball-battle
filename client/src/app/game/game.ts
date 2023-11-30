@@ -5,6 +5,14 @@ import { Score } from "./page";
 import { MutableRefObject } from "react";
 import { getNickname, getSantaColor } from "@/lib/utils";
 import { SANTA_COLORS, SantaColor, getIconDetails } from "@/lib/player-options";
+import {
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT,
+  NONE,
+  MoveDirection,
+} from "@common/input";
 
 type Player = {
   id: string;
@@ -23,6 +31,13 @@ type Snowball = {
   x: number;
   y: number;
 };
+
+const keyDirectionMap = new Map<string, MoveDirection>([
+  ["KeyW", UP],
+  ["KeyS", DOWN],
+  ["KeyD", RIGHT],
+  ["KeyA", LEFT],
+]);
 
 const SERVER_TICK_RATE = 20;
 
@@ -196,27 +211,14 @@ export async function start({
     setLatency(Date.now() - pingStart);
   });
 
-  const inputs = {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-  };
-
+  let currentMoveDirection = NONE;
   window.addEventListener("keydown", (e) => {
-    if (e.code === "KeyW") {
-      inputs["up"] = true;
-    } else if (e.code === "KeyS") {
-      inputs["down"] = true;
-    } else if (e.code === "KeyD") {
-      inputs["right"] = true;
-    } else if (e.code === "KeyA") {
-      inputs["left"] = true;
-    }
-    if (["KeyA", "KeyS", "KeyW", "KeyD"].includes(e.code) && walkSnow.paused) {
+    const direction = keyDirectionMap.get(e.code);
+    if (direction) {
+      currentMoveDirection |= direction;
       // walkSnow.play();
     }
-    socket.emit("inputs", inputs);
+    socket.emit("inputs", currentMoveDirection);
   });
 
   window.addEventListener("mousemove", (event) => {
@@ -225,20 +227,13 @@ export async function start({
   });
 
   window.addEventListener("keyup", (e) => {
-    if (e.code === "KeyW") {
-      inputs["up"] = false;
-    } else if (e.code === "KeyS") {
-      inputs["down"] = false;
-    } else if (e.code === "KeyD") {
-      inputs["right"] = false;
-    } else if (e.code === "KeyA") {
-      inputs["left"] = false;
-    }
-    if (["KeyA", "KeyS", "KeyW", "KeyD"].includes(e.code)) {
+    const direction = keyDirectionMap.get(e.code);
+    if (direction) {
+      currentMoveDirection &= ~direction;
       walkSnow.pause();
       walkSnow.currentTime = 0;
     }
-    socket.emit("inputs", inputs);
+    socket.emit("inputs", currentMoveDirection);
   });
 
   window.addEventListener("click", (e) => {
