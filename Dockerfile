@@ -2,7 +2,10 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY . .
+COPY ./common ./common
+COPY ./server ./server
+
+WORKDIR /app/server
 
 RUN npm ci
 
