@@ -1,6 +1,6 @@
 # Snowball Battle
 
-Welcome to my Snowball Battle multiplayer game built using the https://hathora.dev/ service.
+Welcome to my Snowball Battle multiplayer game built using [hathora.dev](https://hathora.dev/?utm_source=webdevcody&utm_medium=banner&utm_campaign=2023).
 
 You can try playing the deployed version of this application here:
 
