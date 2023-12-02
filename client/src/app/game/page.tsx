@@ -18,6 +18,7 @@ export type Score = {
 };
 
 const KILL_LOG_DISPLAY_MAX = 3;
+const KILL_LOG_TIMEOUT = 1000;
 
 type KillLog = {
   id: string;
@@ -63,7 +64,7 @@ export default function Game() {
         ]);
         setTimeout(() => {
           setKillLog((prev) => prev.slice(1));
-        }, 1000);
+        }, KILL_LOG_TIMEOUT);
       },
       setLatency,
       playerIdRef,
@@ -97,13 +98,13 @@ export default function Game() {
       </div>
       <div className="absolute top-4 flex justify-center w-full select-none">
         <div className="rounded-xl p-4 py-2 text-xs bg-gray-900 text-white">
-          {Math.floor(timeLeft / 1000)} second remaining
+          {Math.floor(timeLeft / 1000)} seconds remaining
         </div>
       </div>
-      <div className="absolute top-16 flex justify-center w-full select-none">
-        <div className="rounded-sm p-4 text-2xl text-white bg-gray-900/75">
-          {killLog.length > 0 &&
-            killLog.map((log, idx) => {
+      {killLog.length > 0 && (
+        <div className="absolute top-16 flex justify-center w-full select-none">
+          <div className="rounded-sm p-4 text-2xl text-white bg-gray-900/75">
+            {killLog.map((log, idx) => {
               if (idx >= KILL_LOG_DISPLAY_MAX) return;
               return (
                 <div key={log.id} className="flex justify-center gap-2">
@@ -117,8 +118,9 @@ export default function Game() {
                 </div>
               );
             })}
+          </div>
         </div>
-      </div>
+      )}
     </main>
   );
 }
