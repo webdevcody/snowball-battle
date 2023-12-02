@@ -77,6 +77,7 @@ export async function createRoom(
   }
 
   const cacheLastBroadcast = new Map<string, any[]>();
+
   function broadcast_compressed(event: string, payload: {}[]) {
     const lastBroadcast = cacheLastBroadcast.get(event);
     if (lastBroadcast === undefined || lastBroadcast.length === 0) {
@@ -84,12 +85,14 @@ export async function createRoom(
       cacheLastBroadcast.set(event, structuredClone(payload));
       return;
     }
-    // copy the array so we don't mutate the original
+
     const newBroadcast = structuredClone(payload);
-    const diffArray = lastBroadcast.map((last: any, idx: number) => {
-      return diffObjects(last, newBroadcast[idx]);
-    });
+    const diffArray = lastBroadcast.map((last: any, idx: number) =>
+      diffObjects(last, newBroadcast[idx])
+    );
+
     if (diffArray.length === 0) return;
+
     if (diffArray.some((diff: any) => Object.keys(diff).length > 0)) {
       broadcast(event, diffArray);
     }
