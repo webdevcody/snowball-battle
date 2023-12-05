@@ -54,6 +54,7 @@ export async function start({
   onGameOver,
   onDisconnect,
   onTimeLeft,
+  onDeath,
   playerIdRef,
   setLatency,
 }: {
@@ -62,6 +63,7 @@ export async function start({
   onGameOver: (winner: string) => void;
   onDisconnect: () => void;
   onTimeLeft: (timeLeft: number) => void;
+  onDeath: (victimName: string, killerName: string) => void;
   setLatency: (latency: number) => void;
   playerIdRef: MutableRefObject<any>;
 }) {
@@ -203,7 +205,7 @@ export async function start({
   });
 
   socket.on("death", ({ victim, killer }) => {
-    // TODO: show cs:go style of death alert
+    onDeath(victim.nickname, killer.nickname);
   });
 
   socket.on("disconnect", () => {
