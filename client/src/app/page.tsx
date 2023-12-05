@@ -3,7 +3,22 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getNickname, persistNickname, persistSantaColor } from "@/lib/utils";
+import {
+  SelectValue,
+  SelectTrigger,
+  SelectLabel,
+  SelectItem,
+  SelectGroup,
+  SelectContent,
+  Select,
+} from "@/components/ui/select";
+import {
+  getNickname,
+  persistNickname,
+  getSantaColor,
+  persistSantaColor,
+} from "@/lib/utils";
+import { SantaColor, getIconDetails, SANTA_COLORS } from "@/lib/player-options";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,6 +27,7 @@ import { christmasFontNormal } from "./fonts";
 export default function LandingPage() {
   const router = useRouter();
   const [nickname, setNickname] = useState(getNickname());
+  const [santa, setSanta] = useState<SantaColor>(getSantaColor() as SantaColor);
 
   return (
     <section className="w-full pt-24 h-screen flex flex-col items-center bg-gray-100 dark:bg-gray-900">
@@ -36,6 +52,7 @@ export default function LandingPage() {
         onSubmit={(e) => {
           e.preventDefault();
           persistNickname(nickname);
+          persistSantaColor(santa);
           router.push("/lobby");
         }}
       >
@@ -52,6 +69,41 @@ export default function LandingPage() {
               setNickname(e.target.value);
             }}
           />
+        </div>
+        <div className="flex flex-col gap-4">
+          <Label>Santa Color</Label>
+          <Select
+            value={santa}
+            required
+            onValueChange={(selectedSanta: SantaColor) => {
+              setSanta(selectedSanta);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select your Santa" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select Icon</SelectLabel>
+                {SANTA_COLORS.map((color) => {
+                  const { label, image, alt } = getIconDetails(color);
+                  return (
+                    <SelectItem value={label} key={label}>
+                      <div className="flex gap-4">
+                        <Image
+                          src={`/${image}`}
+                          alt={alt}
+                          width={16}
+                          height={16}
+                        />
+                        <div>{label}</div>
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
 
         <Button type="submit">Play Now</Button>
