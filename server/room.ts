@@ -55,10 +55,48 @@ export async function createRoom(
     onDestroy();
   }
 
+  function diffObjects(previous: any, current: any) {
+    // Assumes that they have the same keys and just checks for differences
+    // returning the keys that are different (with new one's values)
+    let diff = {};
+    for (const key in current) {
+      if (previous[key] !== current[key]) {
+        diff = {
+          ...diff,
+          [key]: current[key],
+        };
+      }
+    }
+    return diff;
+  }
+
   function broadcast(event: string, payload: any) {
     sockets.forEach((socket) => {
       socket.emit(event, payload);
     });
+  }
+
+  const cacheLastBroadcast = new Map<string, any[]>();
+
+  function broadcast_compressed(event: string, payload: {}[]) {
+    const lastBroadcast = cacheLastBroadcast.get(event);
+    if (lastBroadcast === undefined || lastBroadcast.length === 0) {
+      broadcast(event, payload);
+      cacheLastBroadcast.set(event, structuredClone(payload));
+      return;
+    }
+
+    const newBroadcast = structuredClone(payload);
+    const diffArray = lastBroadcast.map((last: any, idx: number) =>
+      diffObjects(last, newBroadcast[idx])
+    );
+
+    if (diffArray.length === 0) return;
+
+    if (diffArray.some((diff: any) => Object.keys(diff).length > 0)) {
+      broadcast(event, diffArray);
+    }
+    cacheLastBroadcast.set(event, newBroadcast);
   }
 
   function getPlayer(playerId: string) {
@@ -97,7 +135,7 @@ export async function createRoom(
               victim,
               killer,
             });
-            broadcast("players", players);
+            broadcast_compressed("players", players);
             broadcast("refresh", undefined);
           },
         },
@@ -106,7 +144,7 @@ export async function createRoom(
     }
     snowballs = snowballs.filter((snowball) => snowball.timeLeft > 0);
 
-    broadcast("players", players);
+    broadcast_compressed("players", players);
     broadcast("snowballs", snowballs);
   }
 
@@ -182,6 +220,7 @@ export async function createRoom(
   async function onDisconnect(socket: Socket) {
     sockets = sockets.filter((s) => s.id !== socket.id);
     players = players.filter((player) => player.id !== socket.id);
+    delete inputsMap[socket.id];
 
     try {
       const room = await getRoomInfo(roomId);
@@ -199,7 +238,6 @@ export async function createRoom(
     } catch (err) {
       // still let players play
     }
-
     broadcast("players", players);
     broadcast("refresh", undefined);
   }
