@@ -17,8 +17,8 @@ export type Score = {
   santaColor: SantaColor;
 };
 
-const KILL_LOG_DISPLAY_MAX = 3;
-const KILL_LOG_TIMEOUT = 1000;
+const KILL_LOG_DISPLAY_MAX = 5;
+const KILL_LOG_TIMEOUT = 3000;
 
 type KillLog = {
   id: string;
