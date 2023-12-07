@@ -102,17 +102,17 @@ export default function Game() {
         </div>
       </div>
       {killLog.length > 0 && (
-        <div className="absolute top-16 flex justify-center w-full select-none">
-          <div className="rounded-sm p-4 text-2xl text-white bg-gray-900/75">
+        <div className="absolute bottom-4 left-4 flex w-3/4 select-none">
+          <div className="rounded-sm p-4 text-white bg-gray-900/75">
             {killLog.map((log, idx) => {
               if (idx >= KILL_LOG_DISPLAY_MAX) return;
               return (
-                <div key={log.id} className="flex justify-center gap-2">
+                <div key={log.id} className="flex gap-2">
                   <span className="text-red-500 font-extrabold">
-                    {log.killer}
+                    💀 {log.killer}
                   </span>
                   <span className="text-white"> killed </span>
-                  <span className="text-blue-500 font-extrabold">
+                  <span className="text-blue-300 font-extrabold">
                     {log.victim}!
                   </span>
                 </div>
