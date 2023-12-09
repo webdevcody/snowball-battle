@@ -1,4 +1,4 @@
-import { loadMap } from "../mapLoader";
+import { loadMap } from "./mapLoader";
 import { Collidable } from "../traits/collidable";
 import { isColliding } from "../utils/geom";
 
