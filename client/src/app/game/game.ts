@@ -359,10 +359,10 @@ export async function start({
         interpolation.y - cameraY
       );
       let label = player.nickname;
-      canvas.fillStyle = "#ff0000";
+      canvas.fillStyle = "#00ff00";
       if (player.id === getMyPlayer()?.id) {
         label = "You";
-        canvas.fillStyle = "#00ff00";
+        canvas.fillStyle = "#ff0000";
       }
       canvas.font = "16px Arial";
       // The "+ 10"s are just offsets to make the label look better imo
