@@ -1,66 +1,38 @@
-import { loadMap } from "./mapLoader";
+import { loadMap } from "./map-loader";
 import { Collidable } from "../traits/collidable";
 import { isColliding } from "../utils/geom";
+import { MAP_OPTIONS } from "./map-options";
+import { TileType } from "../../common/map-types";
 
 export const TILE_SIZE = 32;
 
-// TODO: don't hard code spawn points
-const SPAWN_POINTS = [
-  {
-    x: 813,
-    y: 739,
-  },
-  {
-    x: 1161,
-    y: 1156,
-  },
-  {
-    x: 1161,
-    y: 1891,
-  },
-  {
-    x: 1572,
-    y: 2188,
-  },
-  {
-    x: 2313,
-    y: 2188,
-  },
-  {
-    x: 2397,
-    y: 1555,
-  },
-  {
-    x: 2190,
-    y: 859,
-  },
-  {
-    x: 1773,
-    y: 1471,
-  },
-];
-
-export function getRandomSpawn() {
-  return SPAWN_POINTS[Math.floor(Math.random() * SPAWN_POINTS.length)];
-}
-
-type Tile = {
-  id: any;
-  gid: any;
-};
 
 export class MapManager {
-  public ground: Tile[][];
-  public decals: (Tile | undefined)[][];
+  public ground: TileType[][];
+  public decals: (TileType | undefined)[][];
+  public validSpawnPoints: { x: number; y: number }[];
 
-  constructor(ground: Tile[][], decals: (Tile | undefined)[][]) {
+  constructor(
+    ground: TileType[][],
+    decals: (TileType | undefined)[][],
+    spawnPoints: { x: number; y: number }[]
+  ) {
     this.ground = ground;
     this.decals = decals;
+    this.validSpawnPoints = spawnPoints;
   }
 
-  static async create() {
-    const mapData = await loadMap();
-    const mapManager = new MapManager(mapData.ground2D, mapData.decal2D);
+  static async create(mapKey: string) {
+    const mapOption = MAP_OPTIONS.get(mapKey);
+    if (!mapOption) {
+      throw new Error(`Map ${mapKey} does not exist`);
+    }
+    const mapData = await loadMap(mapOption.fileName);
+    const mapManager = new MapManager(
+      mapData.ground2D,
+      mapData.decal2D,
+      mapOption.validSpawnPoints
+    );
     return mapManager;
   }
 
@@ -105,5 +77,11 @@ export class MapManager {
       }
     }
     return false;
+  }
+
+  getRandomSpawn() {
+    return this.validSpawnPoints[
+      Math.floor(Math.random() * this.validSpawnPoints.length)
+    ];
   }
 }

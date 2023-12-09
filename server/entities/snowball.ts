@@ -1,4 +1,4 @@
-import { MapManager, getRandomSpawn } from "../map/map-manager";
+import { MapManager } from "../map/map-manager";
 import { Collidable } from "../traits/collidable";
 import { Entity } from "../traits/entity";
 import { PLAYER_SIZE, Player } from "./player";
@@ -61,7 +61,7 @@ export class Snowball implements Collidable, Entity {
           (player.y + PLAYER_SIZE / 2 - this.y) ** 2
       );
       if (distance <= PLAYER_SIZE) {
-        const spawn = getRandomSpawn();
+        const spawn = context.mapManager.getRandomSpawn();
         player.x = spawn.x;
         player.y = spawn.y;
         this.timeLeft = -1;

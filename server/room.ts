@@ -3,9 +3,11 @@ import { destroyRoom, getRoomInfo, updateRoomConfig } from "./models/room";
 import { Socket } from "socket.io";
 import { maxBy } from "lodash";
 import { PLAYER_SIZE, Player } from "./entities/player";
-import { MapManager, getRandomSpawn } from "./map/map-manager";
+import { MapManager } from "./map/map-manager";
 import { Snowball } from "./entities/snowball";
 import { NONE } from "../common/input";
+
+const DEFAULT_MAP = "originalMap";
 
 export async function createRoom(
   roomId: string,
@@ -23,7 +25,7 @@ export async function createRoom(
 
   const TICK_RATE = 20;
 
-  const mapManager = await MapManager.create();
+  const mapManager = await MapManager.create(DEFAULT_MAP);
   let sockets: Socket[] = [];
   let players: Player[] = [];
   let snowballs: Snowball[] = [];
@@ -162,7 +164,7 @@ export async function createRoom(
 
     inputsMap[socket.id] = NONE;
 
-    const spawn = getRandomSpawn();
+    const spawn = mapManager.getRandomSpawn();
 
     const newPlayer = new Player(socket.id, nickname, santaColor);
     newPlayer.x = spawn.x;
