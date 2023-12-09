@@ -358,6 +358,19 @@ export async function start({
         interpolation.x - cameraX,
         interpolation.y - cameraY
       );
+      let label = player.nickname;
+      canvas.fillStyle = "#ff0000";
+      if (player.id === getMyPlayer()?.id) {
+        label = "You";
+        canvas.fillStyle = "#00ff00";
+      }
+      canvas.font = "16px Arial";
+      // The "+ 10"s are just offsets to make the label look better imo
+      canvas.fillText(
+        label,
+        interpolation.x - cameraX - canvas.measureText(label).width / 2 + 10,
+        interpolation.y - cameraY - 10
+      );
     }
 
     for (const snowball of snowballs) {
