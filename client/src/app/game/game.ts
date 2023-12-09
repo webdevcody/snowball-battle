@@ -365,7 +365,7 @@ export async function start({
         canvas.fillStyle = "#ff0000";
       }
       canvas.font = "16px Arial";
-      // The "+ 10"s are just offsets to make the label look better imo
+      // The "10"s are just offsets to make the label look better imo
       canvas.fillText(
         label,
         interpolation.x - cameraX - canvas.measureText(label).width / 2 + 10,
