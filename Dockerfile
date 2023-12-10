@@ -8,5 +8,6 @@ COPY ./server ./server
 WORKDIR /app/server
 
 RUN npm ci
+RUN npm run build
 
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/index.js"]
