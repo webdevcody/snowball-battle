@@ -34,12 +34,12 @@ git@github.com:webdevcody/snowball-battle.git
 ```
 # terminal 1
 cd client
-cp .env.sample env
+cp .env.sample .env
 npm install
 
 # terminal 2
 cd server
-cp .env.sample env
+cp .env.sample .env
 npm install
 ```
 

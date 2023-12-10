@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "exports": {
+    "require": {
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "dev": "tsx watch index.ts",
-    "start": "tsx index.ts"
+    "start": "tsx index.ts",
+    "build": "pkgroll --src . && cp -r map/map-files dist"
   },
   "repository": {
     "type": "git",
@@ -30,6 +36,7 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/lodash": "^4.14.202",
+    "pkgroll": "^2.0.1",
     "tsx": "^3.14.0"
   }
 }
