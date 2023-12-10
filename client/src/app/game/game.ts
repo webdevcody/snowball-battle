@@ -5,14 +5,7 @@ import { Score } from "./page";
 import { MutableRefObject } from "react";
 import { getNickname, getSantaColor } from "@/lib/utils";
 import { SANTA_COLORS, SantaColor, getIconDetails } from "@/lib/player-options";
-import {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-  NONE,
-  MoveDirection,
-} from "@common/input";
+import { UP, DOWN, LEFT, RIGHT, NONE, MoveDirection } from "@common/input";
 
 type Player = {
   id: string;

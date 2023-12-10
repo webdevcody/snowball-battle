@@ -1,9 +1,14 @@
 import tmx from "tmx-parser";
 import path from "path";
 
-export async function loadMap() {
-  const map = await new Promise((resolve, reject) => {
-    tmx.parseFile(path.join(__dirname, "map.tmx"), function (err, loadedMap) {
+import { MapType } from "../../common/map-types";
+
+const MAP_DIR = path.join(__dirname, "map-files");
+
+export async function loadMap(filename: string) {
+  const map: MapType = await new Promise((resolve, reject) => {
+    tmx.parseFile(path.join(MAP_DIR, filename),
+    function (err: any, loadedMap : any) {
       if (err) return reject(err);
       resolve(loadedMap);
     });
