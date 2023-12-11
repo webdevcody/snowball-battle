@@ -18,7 +18,6 @@ COPY --from=build /app/server/package*.json .
 
 RUN npm install --only=production
 
-COPY --from=build /app/server/.env .
 COPY --from=build /app/server/dist dist
 
 CMD ["node", "dist/index.js"]
