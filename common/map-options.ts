@@ -4,7 +4,9 @@ type MapOption = {
   validSpawnPoints: { x: number; y: number }[];
 };
 
-export const MAP_OPTIONS = new Map<string, MapOption>([
+export type MapKey = "originalMap" | "moreHidingSpots";
+
+export const MAP_OPTIONS = new Map<MapKey, MapOption>([
   [
     "originalMap",
     {
@@ -55,6 +57,42 @@ export const MAP_OPTIONS = new Map<string, MapOption>([
         {
           x: 813,
           y: 739,
+        },
+        {
+          x: 1710,
+          y: 1471,
+        },
+        {
+          x: 2000,
+          y: 800,
+        },
+        {
+          x: 1975,
+          y: 1600,
+        },
+        {
+          x: 2450,
+          y: 790,
+        },
+        {
+          x: 2621,
+          y: 1556,
+        },
+        {
+          x: 2424,
+          y: 2345,
+        },
+        {
+          x: 1638,
+          y: 2465,
+        },
+        {
+          x: 1126,
+          y: 2409,
+        },
+        {
+          x: 819,
+          y: 2046,
         },
       ],
     },

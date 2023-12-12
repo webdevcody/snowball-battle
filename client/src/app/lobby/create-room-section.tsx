@@ -19,17 +19,25 @@ import { Slider } from "@/components/ui/slider";
 import { useRegionLatencies } from "./use-region-latencies";
 import { LatencyIcon } from "./latency-icon";
 import { Region } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
+import { MAP_OPTIONS } from "@common/map-options";
+import { MapKey } from "@common/map-options";
+
+const getRandomMapKey = () => {
+  const keys = Array.from(MAP_OPTIONS.keys());
+  return keys[Math.floor(Math.random() * keys.length)];
+}
 
 export function CreateRoomSection({ onRoomCreated }) {
   const router = useRouter();
   const [roomName, setRoomName] = useState("");
   const [capacity, setCapacity] = useState(8);
+  const [mapOption, setMapOption] = useState<MapKey>(getRandomMapKey());
   const [region, setRegion] = useState<RegionValues>("Washington_DC");
   const { getLatency } = useRegionLatencies();
 
   async function createNewRoom() {
     onRoomCreated();
-    const lobby = await createLobby({ roomName, region, capacity });
+    const lobby = await createLobby({ roomName, region, capacity, mapOption});
     router.push(`/game?roomId=${lobby.roomId}`);
   }
 
