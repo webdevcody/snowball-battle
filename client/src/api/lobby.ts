@@ -6,6 +6,8 @@ import {
   Region,
 } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { getConnectionInfo } from "./room";
+import { RoomConfig } from "@common/room-info";
+import { MapKey } from "@common/map-options";
 
 export const REGIONS = Object.values(Region);
 export type RegionValues = `${Region}`;
@@ -31,10 +33,12 @@ export async function createLobby({
   roomName,
   region,
   capacity,
+  mapOption,
 }: {
   roomName: string;
   region: RegionValues;
   capacity: number;
+  mapOption: MapKey;
 }): Promise<LobbyV3> {
   const loginResponse = await hathoraClient.authV1.loginAnonymous();
   const loginInfo = loginResponse.loginResponse;
@@ -42,17 +46,20 @@ export async function createLobby({
     throw new Error(`could not log in to hathora`);
   }
 
+  const roomConfig: RoomConfig = {
+    winningScore: WINNING_SCORE,
+    capacity: capacity,
+    mapOption: mapOption,
+    roomName: roomName,
+    numberOfPlayers: 0,
+  };
+
   const response = await hathoraClient.lobbyV3.createLobby(
     {
       createLobbyV3Params: {
         visibility: (USE_LOCAL_WS ? "local" : "public") as LobbyVisibility,
         region: region as Region,
-        roomConfig: JSON.stringify({
-          capacity,
-          winningScore: WINNING_SCORE,
-          roomName,
-          numberOfPlayers: 0,
-        }),
+        roomConfig: JSON.stringify(roomConfig),
       },
     },
     {

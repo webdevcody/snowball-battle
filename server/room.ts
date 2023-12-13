@@ -6,15 +6,11 @@ import { PLAYER_SIZE, Player } from "./entities/player";
 import { MapManager } from "./map/map-manager";
 import { Snowball } from "./entities/snowball";
 import { NONE } from "../common/input";
-
-const DEFAULT_MAP = "originalMap";
+import { RoomConfig } from "../common/room-info";
 
 export async function createRoom(
   roomId: string,
-  roomConfig: {
-    winningScore: number;
-    capacity: number;
-  },
+  roomConfig: RoomConfig,
   onDestroy: () => void
 ) {
   console.log(`Creating rooms with id of ${roomId}`);
@@ -25,7 +21,7 @@ export async function createRoom(
 
   const TICK_RATE = 20;
 
-  const mapManager = await MapManager.create(DEFAULT_MAP);
+  const mapManager = await MapManager.create(roomConfig.mapOption);
   let sockets: Socket[] = [];
   let players: Player[] = [];
   let snowballs: Snowball[] = [];

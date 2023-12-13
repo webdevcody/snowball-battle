@@ -1,11 +1,10 @@
 import { loadMap } from "./map-loader";
 import { Collidable } from "../traits/collidable";
 import { isColliding } from "../utils/geom";
-import { MAP_OPTIONS } from "./map-options";
+import { MAP_OPTIONS, MapKey } from "../../common/map-options";
 import { TileType } from "../../common/map-types";
 
 export const TILE_SIZE = 32;
-
 
 export class MapManager {
   public ground: TileType[][];
@@ -22,7 +21,7 @@ export class MapManager {
     this.validSpawnPoints = spawnPoints;
   }
 
-  static async create(mapKey: string) {
+  static async create(mapKey: MapKey) {
     const mapOption = MAP_OPTIONS.get(mapKey);
     if (!mapOption) {
       throw new Error(`Map ${mapKey} does not exist`);
