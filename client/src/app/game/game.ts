@@ -4,10 +4,85 @@ import { getConnectionInfo } from "@/api/room";
 import { Score } from "./page";
 import { MutableRefObject } from "react";
 import { getNickname, getSantaColor } from "@/lib/utils";
-import { SANTA_COLORS, SantaColor, getIconDetails } from "@/lib/player-options";
+import { SANTA_COLORS, SantaColor } from "@/lib/player-options";
 import { UP, DOWN, LEFT, RIGHT, NONE, MoveDirection } from "@common/input";
 
-type Player = {
+const SANTA_SPRITE = "/santa-sprite.png";
+const SANTA_SPRITE_LEFT = "/santa-sprite-left.png";
+
+const SantaColorToSpriteRow = new Map<SantaColor, number>([
+  ["Red", 0],
+  ["Blue", 1],
+  ["Green", 2],
+  ["Yellow", 3],
+  ["Purple", 4],
+  ["Teal", 5],
+]);
+
+type Vec2d = {
+  x: number;
+  y: number;
+};
+
+class Sprite {
+  image: HTMLImageElement; // The actual sprite sheet
+  spriteDims: Vec2d; // The dimensions of the sprite sheet (width, height)
+  frameDims: Vec2d; // The dimensions of a single frame (width, height)
+  frameIndex: number; // The index of the current frame
+  frameMap: Map<number, Vec2d>; // A map of frame index to coords in sheet
+  position: Vec2d; // The position of the sprite on the canvas
+
+  constructor(
+    image: HTMLImageElement,
+    spriteDims: Vec2d,
+    frameDims: Vec2d,
+    startIndex: number,
+    startingPosition: Vec2d
+  ) {
+    this.image = image;
+    this.spriteDims = spriteDims;
+    this.frameDims = frameDims;
+    this.frameIndex = startIndex;
+    this.position = startingPosition ?? { x: 0, y: 0 };
+    this.frameMap = new Map<number, Vec2d>();
+  }
+
+  // TODO: decide on i,j, vs x,y vs row,col
+  ij_to_flat_index(i: number, j: number) {
+    return j * this.spriteDims.x + i;
+  }
+
+  buildFrameMap() {
+    for (let i = 0; i < this.spriteDims.x; i++) {
+      for (let j = 0; j < this.spriteDims.y; j++) {
+        this.frameMap.set(this.ij_to_flat_index(i, j), {
+          x: i * this.frameDims.x,
+          y: j * this.frameDims.y,
+        });
+      }
+    }
+  }
+
+  draw(ctx: CanvasRenderingContext2D, x: number, y: number, frame: number) {
+    const theFrame = this.frameMap.get(frame);
+    if (!theFrame) {
+      throw new Error(`Could not find frame ${frame}`);
+    }
+    ctx.drawImage(
+      this.image,
+      theFrame.x,
+      theFrame.y,
+      this.frameDims.x,
+      this.frameDims.y,
+      x,
+      y,
+      this.frameDims.x,
+      this.frameDims.y
+    );
+  }
+}
+
+class Player {
   id: string;
   x: number;
   nickname: string;
@@ -17,7 +92,111 @@ type Player = {
   kills: number;
   deaths: number;
   canFire: boolean;
-};
+  isWalking: boolean;
+  playerSprite: Sprite | null = null;
+  playerSpriteLeft: Sprite | null = null;
+  interpolation: Vec2d | null = null;
+
+  constructor(
+    id: string,
+    x: number,
+    nickname: string,
+    santaColor: SantaColor,
+    y: number,
+    isLeft: boolean,
+    kills: number,
+    deaths: number,
+    canFire: boolean,
+    isWalking: boolean = false
+  ) {
+    this.id = id;
+    this.x = x;
+    this.nickname = nickname;
+    this.santaColor = santaColor;
+    this.y = y;
+    this.isLeft = isLeft;
+    this.kills = kills;
+    this.deaths = deaths;
+    this.canFire = canFire;
+    this.isWalking = isWalking;
+    this.loadSprites();
+  }
+
+  loadSprites() {
+    // TODO: Should be just one sprite with left and right frames on there,
+    // but I'm just going to do this for now
+    const image = new Image();
+    image.src = SANTA_SPRITE;
+    this.playerSprite = new Sprite(image, { x: 8, y: 6 }, { x: 32, y: 32 }, 0, {
+      x: this.x,
+      y: this.y,
+    });
+    this.playerSprite.buildFrameMap();
+    const imageLeft = new Image();
+    imageLeft.src = SANTA_SPRITE_LEFT;
+    this.playerSpriteLeft = new Sprite(
+      imageLeft,
+      { x: 8, y: 6 },
+      { x: 32, y: 32 },
+      0,
+      { x: this.x, y: this.y }
+    );
+    this.playerSpriteLeft.buildFrameMap();
+  }
+
+  updatePlayerInterpolation(interpolationFactor: number, maxIntDist: number) {
+    const startX = this.interpolation ? this.interpolation.x : this.x;
+    const startY = this.interpolation ? this.interpolation.y : this.y;
+
+    this.interpolation = {
+      x:
+        Math.abs(this.x - startX) > maxIntDist
+          ? this.x
+          : startX + interpolationFactor * (this.x - startX),
+      y:
+        Math.abs(this.y - startY) > maxIntDist
+          ? this.y
+          : startY + interpolationFactor * (this.y - startY),
+    };
+  }
+
+  draw(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    isMe: boolean = false
+  ) {
+    // draw player
+    const { x, y } = this.interpolation ?? this;
+    const frameColorOffset =
+      (SantaColorToSpriteRow.get(this.santaColor) ?? 0) * 8;
+    // TODO: will be one sprite with left and right frames eventually
+    if (this.isLeft) {
+      this.playerSpriteLeft?.draw(
+        ctx,
+        x - cameraX,
+        y - cameraY,
+        frameColorOffset
+      );
+    } else {
+      this.playerSprite?.draw(ctx, x - cameraX, y - cameraY, frameColorOffset);
+    }
+    // draw name
+    let label = this.nickname;
+    ctx.fillStyle = "#00ff00";
+    if (isMe) {
+      label = "You";
+      ctx.fillStyle = "#ff0000";
+    }
+    ctx.font = "16px Arial";
+    // The "10"s are just offsets to make the label look better imo
+    ctx.fillText(
+      label,
+      x - cameraX - ctx.measureText(label).width / 2 + 10,
+      y - cameraY - 10
+    );
+  }
+}
 
 type Snowball = {
   id: number;
@@ -72,17 +251,6 @@ export async function start({
     connectionInfo.exposedPort?.port
   }?roomId=${roomId}&nickname=${getNickname()}&santa=${getSantaColor()}`;
 
-  const iconMap = new Map<string, HTMLImageElement>();
-  SANTA_COLORS.forEach((color) => {
-    const { image, label } = getIconDetails(color);
-    const icon = new Image();
-    icon.src = image;
-    iconMap.set(`${label}-false`, icon);
-    const iconLeft = new Image();
-    iconLeft.src = image.replace(".png", "-left.png");
-    iconMap.set(`${label}-true`, iconLeft);
-  });
-
   const mapImage = new Image();
   mapImage.src = "/snowy-sheet.png";
 
@@ -114,13 +282,6 @@ export async function start({
 
   const TILE_SIZE = 32;
   const SNOWBALL_RADIUS = 5;
-  const playerInterpolations = new Map<
-    string,
-    {
-      x: number;
-      y: number;
-    }
-  >();
   const snowballInterpolations = new Map<
     number,
     {
@@ -142,15 +303,6 @@ export async function start({
       santaColor: player.santaColor,
     }));
     onScoresUpdated(newScores);
-  }
-
-  function getPlayerIcon(player: Player) {
-    const iconKey = `${player.santaColor}-${player.isLeft}`;
-    const icon = iconMap.get(iconKey);
-    if (!icon) {
-      throw new Error(`Could not find icon for ${iconKey}`);
-    }
-    return icon;
   }
 
   let pingStart = Date.now();
@@ -182,9 +334,25 @@ export async function start({
     // Players can be the full list of players or just a delta
     serverPlayers.forEach((serverPlayer, idx) => {
       if (players && players[idx]) {
-        players[idx] = { ...players[idx], ...serverPlayer };
+        players[idx].x = serverPlayer.x ?? players[idx].x;
+        players[idx].y = serverPlayer.y ?? players[idx].y;
+        players[idx].kills = serverPlayer.kills ?? players[idx].kills;
+        players[idx].deaths = serverPlayer.deaths ?? players[idx].deaths;
+        players[idx].canFire = serverPlayer.canFire ?? players[idx].canFire;
+        players[idx].isLeft = serverPlayer.isLeft ?? players[idx].isLeft;
       } else {
-        players.push(serverPlayer);
+        let player = new Player(
+          serverPlayer.id,
+          serverPlayer.x,
+          serverPlayer.nickname,
+          serverPlayer.santaColor,
+          serverPlayer.y,
+          serverPlayer.isLeft,
+          serverPlayer.kills,
+          serverPlayer.deaths,
+          serverPlayer.canFire
+        );
+        players.push(player);
       }
     });
     if (isFirstPlayersEvent) {
@@ -252,26 +420,12 @@ export async function start({
     const interpolationFactor = calculateInterpolationFactor(
       Math.floor(1000 / delta)
     );
-
     const maxIntDist = 100;
 
-    for (const player of players) {
-      const interpolation = playerInterpolations.get(player.id);
+    players.forEach((player) => {
+      player.updatePlayerInterpolation(interpolationFactor, maxIntDist);
+    });
 
-      const startX = interpolation ? interpolation.x : player.x;
-      const startY = interpolation ? interpolation.y : player.y;
-
-      playerInterpolations.set(player.id, {
-        x:
-          Math.abs(player.x - startX) > maxIntDist
-            ? player.x
-            : startX + interpolationFactor * (player.x - startX),
-        y:
-          Math.abs(player.y - startY) > maxIntDist
-            ? player.y
-            : startY + interpolationFactor * (player.y - startY),
-      });
-    }
     for (const snowball of snowballs) {
       const interpolation = snowballInterpolations.get(snowball.id);
 
@@ -294,11 +448,10 @@ export async function start({
     let cameraX = 0;
     let cameraY = 0;
     if (myPlayer) {
-      const interpolation = playerInterpolations.get(myPlayer.id)!;
-      cameraX = Math.floor(interpolation.x - canvasEl.width / 2);
-      cameraY = Math.floor(interpolation.y - canvasEl.height / 2);
+      const { x, y } = myPlayer.interpolation ?? myPlayer;
+      cameraX = Math.floor(x - canvasEl.width / 2);
+      cameraY = Math.floor(y - canvasEl.height / 2);
     }
-
     canvas.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
     const TILES_IN_ROW = 8;
@@ -345,25 +498,7 @@ export async function start({
     }
 
     for (const player of players) {
-      const interpolation = playerInterpolations.get(player.id)!;
-      canvas.drawImage(
-        getPlayerIcon(player),
-        interpolation.x - cameraX,
-        interpolation.y - cameraY
-      );
-      let label = player.nickname;
-      canvas.fillStyle = "#00ff00";
-      if (player.id === getMyPlayer()?.id) {
-        label = "You";
-        canvas.fillStyle = "#ff0000";
-      }
-      canvas.font = "16px Arial";
-      // The "10"s are just offsets to make the label look better imo
-      canvas.fillText(
-        label,
-        interpolation.x - cameraX - canvas.measureText(label).width / 2 + 10,
-        interpolation.y - cameraY - 10
-      );
+      player.draw(canvas, cameraX, cameraY, getMyPlayer()?.id === player.id);
     }
 
     for (const snowball of snowballs) {
