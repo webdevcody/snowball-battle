@@ -47,17 +47,16 @@ class Sprite {
     this.frameMap = new Map<number, Vec2d>();
   }
 
-  // TODO: decide on i,j, vs x,y vs row,col
-  ij_to_flat_index(i: number, j: number) {
-    return j * this.spriteDims.x + i;
+  ij_to_flat_index(row: number, col: number) {
+    return row * this.spriteDims.x + col;
   }
 
   buildFrameMap() {
-    for (let i = 0; i < this.spriteDims.x; i++) {
-      for (let j = 0; j < this.spriteDims.y; j++) {
-        this.frameMap.set(this.ij_to_flat_index(i, j), {
-          x: i * this.frameDims.x,
-          y: j * this.frameDims.y,
+    for (let c = 0; c < this.spriteDims.x; c++) {
+      for (let r = 0; r < this.spriteDims.y; r++) {
+        this.frameMap.set(this.ij_to_flat_index(r, c), {
+          x: c * this.frameDims.x,
+          y: r * this.frameDims.y,
         });
       }
     }
