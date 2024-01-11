@@ -4,7 +4,7 @@ import { getConnectionInfo } from "@/api/room";
 import { Score } from "./page";
 import { MutableRefObject } from "react";
 import { getNickname, getSantaColor } from "@/lib/utils";
-import { SANTA_COLORS, SantaColor } from "@/lib/player-options";
+import { SantaColor } from "@/lib/player-options";
 import { UP, DOWN, LEFT, RIGHT, NONE, MoveDirection } from "@common/input";
 
 const SANTA_SPRITE = "/santa-sprite.png";
