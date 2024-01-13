@@ -1,12 +1,4 @@
-type Frame = {
-  time: number;
-  frame: number;
-};
-
-type AnimationFrames = {
-  totalDuration: number;
-  frames: Frame[];
-};
+import type { AnimationFrames } from './frameindex';
 
 // map colorOffset to animation frames for each animation
 const idleAnimation = (colorOffset: number): AnimationFrames => ({

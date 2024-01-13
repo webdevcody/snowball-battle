@@ -1,4 +1,14 @@
-import { AnimationFrames } from './santaAnimation';
+type Frame = {
+  time: number;
+  frame: number;
+};
+
+type AnimationFrames = {
+  totalDuration: number;
+  frames: Frame[];
+};
+
+export type { AnimationFrames };
 
 export class FrameIndexPattern {
   animationFrames: AnimationFrames;
