@@ -15,6 +15,7 @@ export class Player implements Collidable {
   public deaths: number;
   public canFire: boolean;
   public inputs: number;
+  public isWalking: boolean = false;
 
   static SPEED = 0.2;
 
@@ -50,6 +51,16 @@ export class Player implements Collidable {
     const previousX = this.x;
 
     let playerSpeed = Player.SPEED;
+
+    this.isWalking = false;
+    if (
+      this.inputs & UP ||
+      this.inputs & DOWN ||
+      this.inputs & LEFT ||
+      this.inputs & RIGHT
+    ) {
+      this.isWalking = true;
+    }
 
     if (
       (this.inputs & UP || this.inputs & DOWN) &&
