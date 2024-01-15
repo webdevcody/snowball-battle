@@ -4,20 +4,8 @@ import { getConnectionInfo } from "@/api/room";
 import { Score } from "./page";
 import { MutableRefObject } from "react";
 import { getNickname, getSantaColor } from "@/lib/utils";
-import { SANTA_COLORS, SantaColor, getIconDetails } from "@/lib/player-options";
 import { UP, DOWN, LEFT, RIGHT, NONE, MoveDirection } from "@common/input";
-
-type Player = {
-  id: string;
-  x: number;
-  nickname: string;
-  santaColor: SantaColor;
-  y: number;
-  isLeft: boolean;
-  kills: number;
-  deaths: number;
-  canFire: boolean;
-};
+import Player from "./player/player";
 
 type Snowball = {
   id: number;
@@ -72,17 +60,6 @@ export async function start({
     connectionInfo.exposedPort?.port
   }?roomId=${roomId}&nickname=${getNickname()}&santa=${getSantaColor()}`;
 
-  const iconMap = new Map<string, HTMLImageElement>();
-  SANTA_COLORS.forEach((color) => {
-    const { image, label } = getIconDetails(color);
-    const icon = new Image();
-    icon.src = image;
-    iconMap.set(`${label}-false`, icon);
-    const iconLeft = new Image();
-    iconLeft.src = image.replace(".png", "-left.png");
-    iconMap.set(`${label}-true`, iconLeft);
-  });
-
   const mapImage = new Image();
   mapImage.src = "/snowy-sheet.png";
 
@@ -91,9 +68,6 @@ export async function start({
 
   const crosshairArmed = new Image();
   crosshairArmed.src = "/crosshair-armed.png";
-
-  const santaLeftImage = new Image();
-  const walkSnow = new Audio("walk-snow.mp3");
 
   const canvasEl = document.getElementById("canvas") as HTMLCanvasElement;
 
@@ -114,13 +88,6 @@ export async function start({
 
   const TILE_SIZE = 32;
   const SNOWBALL_RADIUS = 5;
-  const playerInterpolations = new Map<
-    string,
-    {
-      x: number;
-      y: number;
-    }
-  >();
   const snowballInterpolations = new Map<
     number,
     {
@@ -142,15 +109,6 @@ export async function start({
       santaColor: player.santaColor,
     }));
     onScoresUpdated(newScores);
-  }
-
-  function getPlayerIcon(player: Player) {
-    const iconKey = `${player.santaColor}-${player.isLeft}`;
-    const icon = iconMap.get(iconKey);
-    if (!icon) {
-      throw new Error(`Could not find icon for ${iconKey}`);
-    }
-    return icon;
   }
 
   let pingStart = Date.now();
@@ -182,9 +140,27 @@ export async function start({
     // Players can be the full list of players or just a delta
     serverPlayers.forEach((serverPlayer, idx) => {
       if (players && players[idx]) {
-        players[idx] = { ...players[idx], ...serverPlayer };
+        players[idx].x = serverPlayer.x ?? players[idx].x;
+        players[idx].y = serverPlayer.y ?? players[idx].y;
+        players[idx].kills = serverPlayer.kills ?? players[idx].kills;
+        players[idx].deaths = serverPlayer.deaths ?? players[idx].deaths;
+        players[idx].canFire = serverPlayer.canFire ?? players[idx].canFire;
+        players[idx].isLeft = serverPlayer.isLeft ?? players[idx].isLeft;
+        players[idx].isWalking = serverPlayer.isWalking ?? players[idx].isWalking;
       } else {
-        players.push(serverPlayer);
+        let player = new Player(
+          serverPlayer.id,
+          serverPlayer.x,
+          serverPlayer.nickname,
+          serverPlayer.santaColor,
+          serverPlayer.y,
+          serverPlayer.isLeft,
+          serverPlayer.kills,
+          serverPlayer.deaths,
+          serverPlayer.canFire,
+          serverPlayer.isWalking
+        );
+        players.push(player);
       }
     });
     if (isFirstPlayersEvent) {
@@ -218,7 +194,6 @@ export async function start({
     const direction = keyDirectionMap.get(e.code);
     if (direction) {
       currentMoveDirection |= direction;
-      // walkSnow.play();
     }
     socket.emit("inputs", currentMoveDirection);
   });
@@ -232,8 +207,6 @@ export async function start({
     const direction = keyDirectionMap.get(e.code);
     if (direction) {
       currentMoveDirection &= ~direction;
-      walkSnow.pause();
-      walkSnow.currentTime = 0;
     }
     socket.emit("inputs", currentMoveDirection);
   });
@@ -252,26 +225,12 @@ export async function start({
     const interpolationFactor = calculateInterpolationFactor(
       Math.floor(1000 / delta)
     );
-
     const maxIntDist = 100;
 
-    for (const player of players) {
-      const interpolation = playerInterpolations.get(player.id);
+    players.forEach((player) => {
+      player.updatePlayerInterpolation(interpolationFactor, maxIntDist);
+    });
 
-      const startX = interpolation ? interpolation.x : player.x;
-      const startY = interpolation ? interpolation.y : player.y;
-
-      playerInterpolations.set(player.id, {
-        x:
-          Math.abs(player.x - startX) > maxIntDist
-            ? player.x
-            : startX + interpolationFactor * (player.x - startX),
-        y:
-          Math.abs(player.y - startY) > maxIntDist
-            ? player.y
-            : startY + interpolationFactor * (player.y - startY),
-      });
-    }
     for (const snowball of snowballs) {
       const interpolation = snowballInterpolations.get(snowball.id);
 
@@ -294,11 +253,10 @@ export async function start({
     let cameraX = 0;
     let cameraY = 0;
     if (myPlayer) {
-      const interpolation = playerInterpolations.get(myPlayer.id)!;
-      cameraX = Math.floor(interpolation.x - canvasEl.width / 2);
-      cameraY = Math.floor(interpolation.y - canvasEl.height / 2);
+      const { x, y } = myPlayer.interpolation ?? myPlayer;
+      cameraX = Math.floor(x - canvasEl.width / 2);
+      cameraY = Math.floor(y - canvasEl.height / 2);
     }
-
     canvas.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
     const TILES_IN_ROW = 8;
@@ -345,24 +303,12 @@ export async function start({
     }
 
     for (const player of players) {
-      const interpolation = playerInterpolations.get(player.id)!;
-      canvas.drawImage(
-        getPlayerIcon(player),
-        interpolation.x - cameraX,
-        interpolation.y - cameraY
-      );
-      let label = player.nickname;
-      canvas.fillStyle = "#00ff00";
-      if (player.id === getMyPlayer()?.id) {
-        label = "You";
-        canvas.fillStyle = "#ff0000";
-      }
-      canvas.font = "16px Arial";
-      // The "10"s are just offsets to make the label look better imo
-      canvas.fillText(
-        label,
-        interpolation.x - cameraX - canvas.measureText(label).width / 2 + 10,
-        interpolation.y - cameraY - 10
+      player.draw(
+        canvas,
+        cameraX,
+        cameraY,
+        delta,
+        getMyPlayer()?.id === player.id
       );
     }
 
