@@ -10,8 +10,9 @@ import LoadingLobbySpinner from "./spinner";
 import { christmasFontNormal } from "../fonts";
 import { GameCard } from "./lobby-card";
 import { useRegionLatencies } from "./use-region-latencies";
-import { listActivePublicLobbies } from "@/api/lobby";
+import { listActivePublicLobbies } from "@/services/lobby";
 import { LobbyV3 } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
+import { Header } from "../header";
 
 function useNickname() {
   const [nickname, setNickname] = useState("anonymous");
@@ -46,6 +47,7 @@ export default function Lobby() {
 
   return (
     <main className="">
+      <Header />
       {lobbyState === "VIEW" && (
         <section className="w-full text-white h-screen">
           <div className="container mx-auto px-4 py-8">

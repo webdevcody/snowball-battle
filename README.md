@@ -69,6 +69,8 @@ In order to deploy the client to vercel, you'll need to setup the following envi
 
 ```
 NEXT_PUBLIC_HATHORA_APP_ID=YOUR_APP_ID
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+GOOGLE_SECRET_KEY=YOUR_GOOGLE_CLIENT_SECRET
 ```
 
 Create a vercel project and point it to the ./client sub directory. Your client will automatically deploy on each commit to main.
