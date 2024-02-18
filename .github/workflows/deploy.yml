@@ -12,7 +12,7 @@ jobs:
       - run: npm install -g @hathora/cli
       - run: >
           hathora-cloud deploy \
-            --appId app-f5736a0b-9fad-43d6-a928-58475b4e9018 \
+            --appId app-de924166-b5de-47a6-a0c4-023479a88623 \
             --token ${{ secrets.HATHORA_TOKEN }} \
             --planName tiny \
             --roomsPerProcess 5 \

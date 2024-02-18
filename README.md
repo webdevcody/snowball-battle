@@ -82,5 +82,3 @@ In order to have your server automatically deploy when pushing to github actions
 ```
 HATHORA_TOKEN=YOUR_SECRET_APP_TOKEN
 ```
-
--
