@@ -34,13 +34,17 @@ export async function createLobby({
   region,
   capacity,
   mapOption,
+  idToken,
 }: {
   roomName: string;
   region: RegionValues;
   capacity: number;
   mapOption: MapKey;
+  idToken: string;
 }): Promise<LobbyV3> {
-  const loginResponse = await hathoraClient.authV1.loginAnonymous();
+  const loginResponse = await hathoraClient.authV1.loginGoogle({
+    idToken,
+  });
   const loginInfo = loginResponse.loginResponse;
   if (!loginInfo) {
     throw new Error(`could not log in to hathora`);

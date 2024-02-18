@@ -10,7 +10,7 @@ import {
   Select,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { REGIONS, RegionValues, createLobby } from "@/api/lobby";
+import { REGIONS, RegionValues, createLobby } from "@/services/lobby";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -21,11 +21,12 @@ import { LatencyIcon } from "./latency-icon";
 import { Region } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { MAP_OPTIONS } from "@common/map-options";
 import { MapKey } from "@common/map-options";
+import { useSession } from "next-auth/react";
 
 const getRandomMapKey = () => {
   const keys = Array.from(MAP_OPTIONS.keys());
   return keys[Math.floor(Math.random() * keys.length)];
-}
+};
 
 export function CreateRoomSection({ onRoomCreated }) {
   const router = useRouter();
@@ -34,10 +35,18 @@ export function CreateRoomSection({ onRoomCreated }) {
   const [mapOption, setMapOption] = useState<MapKey>(getRandomMapKey());
   const [region, setRegion] = useState<RegionValues>("Washington_DC");
   const { getLatency } = useRegionLatencies();
+  const session = useSession();
 
   async function createNewRoom() {
+    if (!session.data) return;
     onRoomCreated();
-    const lobby = await createLobby({ roomName, region, capacity, mapOption});
+    const lobby = await createLobby({
+      roomName,
+      region,
+      capacity,
+      mapOption,
+      idToken: session.data.id_token,
+    });
     router.push(`/game?roomId=${lobby.roomId}`);
   }
 

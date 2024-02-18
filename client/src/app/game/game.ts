@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 import { USE_LOCAL_WS } from "@/config";
-import { getConnectionInfo } from "@/api/room";
+import { getConnectionInfo } from "@/services/room";
 import { Score } from "./page";
 import { MutableRefObject } from "react";
 import { getNickname, getSantaColor } from "@/lib/utils";
@@ -146,7 +146,8 @@ export async function start({
         players[idx].deaths = serverPlayer.deaths ?? players[idx].deaths;
         players[idx].canFire = serverPlayer.canFire ?? players[idx].canFire;
         players[idx].isLeft = serverPlayer.isLeft ?? players[idx].isLeft;
-        players[idx].isWalking = serverPlayer.isWalking ?? players[idx].isWalking;
+        players[idx].isWalking =
+          serverPlayer.isWalking ?? players[idx].isWalking;
       } else {
         let player = new Player(
           serverPlayer.id,
