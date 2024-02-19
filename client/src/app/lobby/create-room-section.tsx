@@ -22,6 +22,7 @@ import { Region } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { MAP_OPTIONS } from "@common/map-options";
 import { MapKey } from "@common/map-options";
 import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
 
 const getRandomMapKey = () => {
   const keys = Array.from(MAP_OPTIONS.keys());
@@ -35,10 +36,18 @@ export function CreateRoomSection({ onRoomCreated }) {
   const [mapOption, setMapOption] = useState<MapKey>(getRandomMapKey());
   const [region, setRegion] = useState<RegionValues>("Washington_DC");
   const { getLatency } = useRegionLatencies();
+  const { toast } = useToast();
   const session = useSession();
 
   async function createNewRoom() {
-    if (!session.data) return;
+    if (!session.data) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create a room",
+        variant: "destructive",
+      });
+      return;
+    }
     onRoomCreated();
     const lobby = await createLobby({
       roomName,
