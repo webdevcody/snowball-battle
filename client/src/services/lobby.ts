@@ -18,8 +18,8 @@ async function isReadyForConnect(roomId: string) {
   const TRY_CONNECT_INTERVAL_MS = 1000;
 
   for (let i = 0; i < MAX_CONNECT_ATTEMPTS; i++) {
-    const connetionInfo = await getConnectionInfo(roomId);
-    if (connetionInfo.status === "active") {
+    const connectionInfo = await getConnectionInfo(roomId);
+    if (connectionInfo.status === "active") {
       return;
     }
     await new Promise((resolve) =>
