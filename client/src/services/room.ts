@@ -21,3 +21,49 @@ export async function getConnectionInfo(
     return info;
   }
 }
+
+export async function getRoomIdByShortCode(shortCode: string): Promise<string | null>{
+
+  try {
+
+    const response = await hathoraClient.lobbyV3.getLobbyInfoByShortCode(shortCode);
+
+    if(response.statusCode === 404){
+      return null;
+    };
+  
+    if(response.lobbyV3?.roomId){
+      return response.lobbyV3.roomId;
+    }
+
+  }catch(e){
+    console.log("lobby not found")
+  }
+
+  return null;
+
+}
+
+export async function getShortCodeByRoomId(roomId: string): Promise<string | null> {
+
+  try {
+    
+    const response = await hathoraClient.lobbyV3.getLobbyInfoByRoomId(roomId);
+
+    if(response.statusCode === 404){
+      return null;
+    };
+  
+    if(response.lobbyV3){
+
+      return response.lobbyV3.shortCode;
+
+    }
+
+  }catch(e){
+    console.log("lobby not found")
+  }
+
+  return null;
+  
+}

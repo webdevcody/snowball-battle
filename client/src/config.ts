@@ -3,3 +3,4 @@ export const USE_LOCAL_WS =
   (process.env.NEXT_PUBLIC_USE_LOCAL_WS as string) === "true";
 
 export const WINNING_SCORE = 10;
+export const SHORT_CODE_LENGTH = 4;

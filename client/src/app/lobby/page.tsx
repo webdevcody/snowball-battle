@@ -13,6 +13,7 @@ import { useRegionLatencies } from "./use-region-latencies";
 import { listActivePublicLobbies } from "@/services/lobby";
 import { LobbyV3 } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
 import { Header } from "../header";
+import JoinRoomSection from "./join-room-section";
 
 function useNickname() {
   const [nickname, setNickname] = useState("anonymous");
@@ -23,6 +24,7 @@ function useNickname() {
 }
 
 export default function Lobby() {
+
   const { getLatency } = useRegionLatencies();
   const [lobbies, setLobbies] = useState<LobbyV3[]>([]);
   const [lobbyState, setLobbyState] = useState<"LOADING" | "VIEW" | "CREATING">(
@@ -51,7 +53,7 @@ export default function Lobby() {
         <>
           <Header />
           <section className="w-full text-white h-screen">
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 pb-8">
               <h1
                 className={`mt-8 text-4xl font-bold text-center mb-2 ${christmasFontNormal.className}`}
               >
@@ -94,8 +96,21 @@ export default function Lobby() {
                   className={clsx({
                     "col-span-2 col-start-2": !hasRooms,
                     "col-span-1": !hasRooms,
+                    "space-y-4": hasRooms
                   })}
                 >
+
+                  {hasRooms && (
+                    <>
+                      <h2
+                        className={`text-2xl font-semibold mb-4 text-white ${christmasFontNormal.className}`}
+                      >
+                        Join With a Code
+                      </h2>
+                      <JoinRoomSection/>
+                    </>
+                  )}
+
                   <h2
                     className={`text-2xl font-semibold mb-4 text-white ${christmasFontNormal.className}`}
                   >

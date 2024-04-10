@@ -5,9 +5,10 @@ import {
   LobbyVisibility,
   Region,
 } from "@hathora/cloud-sdk-typescript/dist/sdk/models/shared";
-import { getConnectionInfo } from "./room";
+import { getConnectionInfo, getShortCodeByRoomId } from "./room";
 import { RoomConfig } from "@common/room-info";
 import { MapKey } from "@common/map-options";
+import { generateShortCode } from "@/lib/utils";
 
 export const REGIONS = Object.values(Region);
 export type RegionValues = `${Region}`;
@@ -46,6 +47,7 @@ export async function createLobby({
     idToken,
   });
   const loginInfo = loginResponse.loginResponse;
+  
   if (!loginInfo) {
     throw new Error(`could not log in to hathora`);
   }
@@ -57,7 +59,8 @@ export async function createLobby({
     roomName: roomName,
     numberOfPlayers: 0,
   };
-
+  
+  const shortCode = generateShortCode();
   const response = await hathoraClient.lobbyV3.createLobby(
     {
       createLobbyV3Params: {
@@ -65,6 +68,7 @@ export async function createLobby({
         region: region as Region,
         roomConfig: JSON.stringify(roomConfig),
       },
+      shortCode: shortCode
     },
     {
       playerAuth: loginInfo.token,
@@ -75,6 +79,7 @@ export async function createLobby({
   if (!lobbyInfo) {
     throw new Error(`could not create a lobby`);
   }
+  
   await isReadyForConnect(lobbyInfo.roomId);
   return lobbyInfo;
 }
@@ -82,4 +87,4 @@ export async function createLobby({
 export async function listActivePublicLobbies() {
   const response = await hathoraClient.lobbyV3.listActivePublicLobbies();
   return response.classes ?? [];
-}
+} 
