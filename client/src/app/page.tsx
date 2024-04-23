@@ -3,21 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  SelectValue,
-  SelectTrigger,
-  SelectLabel,
-  SelectItem,
-  SelectGroup,
-  SelectContent,
-  Select,
-} from "@/components/ui/select";
-import {
-  getNickname,
-  persistNickname,
-  getSantaColor,
-  persistSantaColor,
-} from "@/lib/utils";
+import { SelectValue, SelectTrigger, SelectLabel, SelectItem, SelectGroup, SelectContent, Select } from "@/components/ui/select";
+import { getNickname, persistNickname, getSantaColor, persistSantaColor } from "@/lib/utils";
 import { SantaColor, getIconDetails, SANTA_COLORS } from "@/lib/player-options";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -31,11 +18,7 @@ export default function LandingPage() {
 
   return (
     <section className="w-full pt-24 h-screen flex flex-col items-center bg-gray-100 dark:bg-gray-900">
-      <h1
-        className={`text-5xl font-bold text-gray-800 dark:text-gray-200 mb-8 ${christmasFontNormal.className}`}
-      >
-        Welcome to Snowball Battle!
-      </h1>
+      <h1 className={`text-5xl font-bold text-gray-800 dark:text-gray-200 mb-8 ${christmasFontNormal.className}`}>Welcome to Snowball Battle!</h1>
       <Image
         alt="Game Logo"
         className="mb-8 rounded-full"
@@ -90,12 +73,7 @@ export default function LandingPage() {
                   return (
                     <SelectItem value={label} key={label}>
                       <div className="flex gap-4">
-                        <Image
-                          src={`/${image}`}
-                          alt={alt}
-                          width={16}
-                          height={16}
-                        />
+                        <Image src={`/${image}`} alt={alt} width={16} height={16} />
                         <div>{label}</div>
                       </div>
                     </SelectItem>

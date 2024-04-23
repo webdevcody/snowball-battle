@@ -14,7 +14,7 @@ type SantaIconDetails = {
   alt: string;
   label: SantaColor;
 };
-export function getIconDetails(santaColor: SantaColor) : SantaIconDetails {
+export function getIconDetails(santaColor: SantaColor): SantaIconDetails {
   return {
     image: `santa-${santaColor.toLowerCase()}.png`,
     alt: `A ${santaColor.toLowerCase()} santa icon`,

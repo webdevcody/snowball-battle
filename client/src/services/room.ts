@@ -22,48 +22,44 @@ export async function getConnectionInfo(
   }
 }
 
-export async function getRoomIdByShortCode(shortCode: string): Promise<string | null>{
-
+export async function getRoomIdByShortCode(
+  shortCode: string
+): Promise<string | null> {
   try {
+    const response = await hathoraClient.lobbyV3.getLobbyInfoByShortCode(
+      shortCode
+    );
 
-    const response = await hathoraClient.lobbyV3.getLobbyInfoByShortCode(shortCode);
-
-    if(response.statusCode === 404){
+    if (response.statusCode === 404) {
       return null;
-    };
-  
-    if(response.lobbyV3?.roomId){
+    }
+
+    if (response.lobbyV3?.roomId) {
       return response.lobbyV3.roomId;
     }
-
-  }catch(e){
-    console.log("lobby not found")
+  } catch (e) {
+    console.log("lobby not found");
   }
 
   return null;
-
 }
 
-export async function getShortCodeByRoomId(roomId: string): Promise<string | null> {
-
+export async function getShortCodeByRoomId(
+  roomId: string
+): Promise<string | null> {
   try {
-    
     const response = await hathoraClient.lobbyV3.getLobbyInfoByRoomId(roomId);
 
-    if(response.statusCode === 404){
+    if (response.statusCode === 404) {
       return null;
-    };
-  
-    if(response.lobbyV3){
-
-      return response.lobbyV3.shortCode;
-
     }
 
-  }catch(e){
-    console.log("lobby not found")
+    if (response.lobbyV3) {
+      return response.lobbyV3.shortCode;
+    }
+  } catch (e) {
+    console.log("lobby not found");
   }
 
   return null;
-  
 }

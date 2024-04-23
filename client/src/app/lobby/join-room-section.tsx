@@ -7,42 +7,38 @@ import { getRoomIdByShortCode } from "@/services/room";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function JoinRoomSection(){
-
+export default function JoinRoomSection() {
   const router = useRouter();
 
   const [shortCode, setShortCode] = useState<string>("");
 
-  async function joinRoom(){
-    if(shortCode.length < SHORT_CODE_LENGTH){
+  async function joinRoom() {
+    if (shortCode.length < SHORT_CODE_LENGTH) {
       toast({
         title: "Invalid room code",
         description: "Room code must be 4 characters long",
-        variant: "destructive"
-      })
+        variant: "destructive",
+      });
       return;
-    } 
-    
+    }
+
     const roomId = await getRoomIdByShortCode(shortCode);
 
-    if(!roomId){
+    if (!roomId) {
       toast({
         title: "Room not found",
         description: `Room with code ${shortCode} couldn't be found`,
-        variant: "destructive"  
-      })
+        variant: "destructive",
+      });
       return;
     }
-      
-    router.push(`game?roomId=${roomId}`);
 
+    router.push(`game?roomId=${roomId}`);
   }
 
   return (
-    <div 
-      className="bg-gray-700 rounded-lg shadow-md p-2 flex flex-col"
-      >
-      <form 
+    <div className="bg-gray-700 rounded-lg shadow-md p-2 flex flex-col">
+      <form
         className="bg-gray-700 rounded-lg p-4 flex flex-col gap-8"
         onSubmit={(e) => {
           e.preventDefault();
@@ -66,7 +62,6 @@ export default function JoinRoomSection(){
         </div>
         <Button type="submit">Join Room</Button>
       </form>
-      </div>
-  )
-
+    </div>
+  );
 }

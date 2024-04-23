@@ -24,7 +24,6 @@ function useNickname() {
 }
 
 export default function Lobby() {
-
   const { getLatency } = useRegionLatencies();
   const [lobbies, setLobbies] = useState<LobbyV3[]>([]);
   const [lobbyState, setLobbyState] = useState<"LOADING" | "VIEW" | "CREATING">(
@@ -96,10 +95,9 @@ export default function Lobby() {
                   className={clsx({
                     "col-span-2 col-start-2": !hasRooms,
                     "col-span-1": !hasRooms,
-                    "space-y-4": hasRooms
+                    "space-y-4": hasRooms,
                   })}
                 >
-
                   {hasRooms && (
                     <>
                       <h2
@@ -107,7 +105,7 @@ export default function Lobby() {
                       >
                         Join With a Code
                       </h2>
-                      <JoinRoomSection/>
+                      <JoinRoomSection />
                     </>
                   )}
 

@@ -36,18 +36,18 @@ export default function Game() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [latency, setLatency] = useState(0);
   const [roomCode, setRoomCode] = useState<string>("");
-  
-  async function setRoomShortCode(roomId: string){
+
+  async function setRoomShortCode(roomId: string) {
     const roomCode = await getShortCodeByRoomId(roomId);
-    
-    if(!roomCode){
+
+    if (!roomCode) {
       setRoomCode("not found");
       return;
     }
-    
-    setRoomCode(roomCode)
+
+    setRoomCode(roomCode);
   }
-  
+
   useEffect(() => {
     const roomId = params.get("roomId");
     if (!roomId) return;
@@ -111,7 +111,7 @@ export default function Game() {
           {latency} ms
         </div>
         <div className="text-black bg-white border border-black rounded w-fit p-2 select-none">
-          Code: {" "} {roomCode}
+          Code: {roomCode}
         </div>
       </div>
       <div className="absolute top-4 flex justify-center w-full select-none">

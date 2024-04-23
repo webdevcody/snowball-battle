@@ -1,10 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import {
-  SantaColor,
-  DEFAULT_NICKNAME,
-  DEFAULT_SANTA_COLOR,
-} from "./player-options";
+import { SantaColor, DEFAULT_NICKNAME, DEFAULT_SANTA_COLOR } from "./player-options";
 import { customAlphabet } from "nanoid";
 import { SHORT_CODE_LENGTH } from "@/config";
 
@@ -44,7 +40,7 @@ export function persistSantaColor(newColor: SantaColor) {
   persistItemToLocalStorage(SANTA_COLOR_KEY, newColor);
 }
 
-export function generateShortCode(){
+export function generateShortCode() {
   const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const shortCode = customAlphabet(alphabet, SHORT_CODE_LENGTH);
   return shortCode();
